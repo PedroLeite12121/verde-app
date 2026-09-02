@@ -9,7 +9,7 @@ services:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: dbDadosVerde
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - verde-data:/var/lib/mysql
       - ./dbDadosVerde.sql:/docker-entrypoint-initdb.d/init.sql

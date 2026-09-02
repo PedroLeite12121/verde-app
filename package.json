@@ -3,15 +3,15 @@
   "version": "1.0.0",
   "description": "App de mapeamento de áreas não verdes e conexão com ONGs de reflorestamento",
   "scripts": {
-    "dev": "docker-compose up",
-    "dev:db": "docker-compose up -d db",
-    "dev:backend": "docker-compose up backend",
-    "stop": "docker-compose down",
-    "logs": "docker-compose logs -f",
-    "setup": "docker-compose up -d db && sleep 5 && cd backend && npm run docker:migrate && npm run docker:seed",
-    "db:shell": "docker-compose exec db mysql -uroot -proot dbDadosVerde",
-    "migrate": "docker-compose exec backend npm run migrate",
-    "seed": "docker-compose exec backend npm run seed",
-    "reset": "docker-compose down -v && docker-compose up -d db && sleep 5 && cd backend && npm run docker:migrate && npm run docker:seed"
+    "dev": "docker compose up",
+    "dev:db": "docker compose up -d db",
+    "dev:backend": "docker compose up backend",
+    "stop": "docker compose down",
+    "logs": "docker compose logs -f",
+    "setup": "docker compose up -d db && node -e \"setTimeout(() => process.exit(0), 5000)\" && cd backend && npm run docker:migrate && npm run docker:seed",
+    "db:shell": "docker compose exec db mysql -uroot -proot dbDadosVerde",
+    "migrate": "docker compose exec backend npm run migrate",
+    "seed": "docker compose exec backend npm run seed",
+    "reset": "docker compose down -v && docker compose up -d db && node -e \"setTimeout(() => process.exit(0), 5000)\" && cd backend && npm run docker:migrate && npm run docker:seed"
   }
 }
