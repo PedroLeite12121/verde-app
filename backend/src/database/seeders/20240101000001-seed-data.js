@@ -23,20 +23,23 @@ module.exports = {
     ]);
 
     await queryInterface.bulkInsert('tbl_Ongs', [
-      { idOngs: 1, idUsuario: 2, regiao: 'Centro-Sul', cnpj: '12345678000190', telefone: '(11) 99999-0001', descricao: 'ONG de reflorestamento urbano' },
+      { idOngs: 1, idUsuario: 2, regiao: 'Cidade Tiradentes', cnpj: '12345678000190', telefone: '(11) 99999-0001', descricao: 'ONG de reflorestamento urbano na Cidade Tiradentes' },
     ]);
 
     await queryInterface.bulkInsert('tbl_Area', [
-      { idArea: 1, cidade: 'São Paulo', bairro: 'Mooca', rua: 'Rua da Graça', statusArea: 'identificada' },
-      { idArea: 2, cidade: 'São Paulo', bairro: 'Tatuapé', rua: 'Rua Rui Barbosa', statusArea: 'em tratamento' },
+      { idArea: 1, cidade: 'São Paulo', bairro: 'Cidade Tiradentes', rua: 'Estrada do Iguatemi', statusArea: 'identificada' },
+      { idArea: 2, cidade: 'São Paulo', bairro: 'Cidade Tiradentes', rua: 'Rua Inácio Monteiro', statusArea: 'em tratamento' },
+      { idArea: 3, cidade: 'São Paulo', bairro: 'Cidade Tiradentes', rua: 'Av. dos Têxteis', statusArea: 'reflorestada' },
+      { idArea: 4, cidade: 'São Paulo', bairro: 'Cidade Tiradentes', rua: 'Rua Juá Mirim', statusArea: 'em tratamento' },
     ]);
 
     await queryInterface.bulkInsert('tbl_Projeto', [
-      { id_Projeto: 1, idUsuario: 2, objetivo: 'Reflorestar área urbana', descricao: 'Plantio de 50 árvores na Mooca', percentualConclusao: 30 },
+      { id_Projeto: 1, idUsuario: 2, objetivo: 'Reflorestar margem da Estrada do Iguatemi', descricao: 'Plantio de 120 árvores na Cidade Tiradentes', percentualConclusao: 30 },
     ]);
 
     await queryInterface.bulkInsert('tbl_Denuncias', [
-      { idDenuncias: 1, idUsuario: 3, idArea: 1, titulo: 'Desmatamento na rua', dataDenuncia: '2024-08-15', statusDenuncia: 'aberta', descricao: 'Área com árvores derrubadas', foto: null },
+      { idDenuncias: 1, idUsuario: 3, idArea: 2, titulo: 'Desmatamento na rua', dataDenuncia: '2026-01-15', statusDenuncia: 'aberta', descricao: 'Área com árvores derrubadas próxima à Rua Inácio Monteiro', foto: null },
+      { idDenuncias: 2, idUsuario: 3, idArea: 1, titulo: 'Descarte irregular de entulho', dataDenuncia: '2026-02-10', statusDenuncia: 'em tratamento', descricao: 'Entulho acumulado às margens da Estrada do Iguatemi', foto: null },
     ]);
   },
 

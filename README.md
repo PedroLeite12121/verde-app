@@ -96,7 +96,7 @@ npx expo start
 │   │       └── profile/       # Perfil
 │   └── app.json               # Configuração Expo
 │
-├── admin/                      # Painel admin (a implementar)
+├── admin/                      # Painel admin web (HTML/CSS/JS + server.js)
 ├── dbDadosVerde.sql            # Script SQL do banco
 └── .gitignore
 ```
@@ -205,6 +205,7 @@ O Docker tem hot reload: alterações em `backend/src/` reiniciam o servidor aut
 | `npm run migrate` | Roda migrations |
 | `npm run seed` | Roda seeders |
 | `npm run reset` | Apaga tudo e reinicia o banco |
+| `npm run admin` | Sobe o painel admin web (`http://localhost:3000`) |
 
 #### Portas
 
@@ -356,7 +357,7 @@ Base URL: `http://localhost:3333/api`
 | GET | `/ongs/:id` | Buscar ONG | Sim |
 | POST | `/ongs` | Cadastrar ONG | Sim |
 
-**Filtro:** `?regiao=Centro-Sul`
+**Filtro:** `?regiao=Cidade Tiradentes`
 
 ### Projetos
 
@@ -398,6 +399,38 @@ Base URL: `http://localhost:3333/api`
 | GET | `/admin/areas` | Listar todas as áreas | Admin |
 | GET | `/admin/ongs` | Listar todas as ONGs | Admin |
 | GET | `/admin/denuncias` | Listar todas as denúncias | Admin |
+
+---
+
+## Painel Admin (Web)
+
+Interface web simples (HTML/CSS/JS puro, sem build) que consome as APIs de Admin.
+
+### Como rodar
+
+```bash
+# Com os containers de pé (npm run dev)
+npm run admin
+```
+
+Abra `http://localhost:3000` no navegador e entre com as credenciais de admin:
+
+| Tipo | Email | Senha |
+|------|-------|-------|
+| Admin | `admin@verde.com` | `123456` |
+
+O painel permite:
+- Dashboard com totais de usuários, admins, usuários comuns, áreas, ONGs, projetos e denúncias (abertas).
+- Listagem de usuários (com perfil admin/comum), áreas, ONGs e denúncias.
+- Acesso restrito: apenas contas com perfil `admin` conseguem entrar.
+
+O servidor (`admin/server.js`) é Node puro (sem dependências), serve os arquivos estáticos na
+porta `3000` e faz proxy de `/api` para o backend em `http://localhost:3333`, evitando problemas
+de CORS na demonstração. Para mudar a porta ou o backend:
+
+```bash
+PORT=3001 BACKEND_URL=http://localhost:3333 npm run admin
+```
 
 ---
 

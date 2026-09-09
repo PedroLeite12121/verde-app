@@ -19,7 +19,7 @@ module.exports = {
         unique: true,
       },
       senha: {
-        type: Sequelize.STRING(15),
+        type: Sequelize.STRING(255),
         allowNull: false,
       },
     });

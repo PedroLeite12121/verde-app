@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>+Verde | Painel Admin</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Login -->
+  <div id="view-login" class="login-view hidden">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="login-logo-icon">+</div>
+        <h1>+Verde</h1>
+        <p>Painel Administrador</p>
+      </div>
+      <form id="login-form">
+        <div class="field">
+          <label for="login-email">E-mail</label>
+          <input type="email" id="login-email" placeholder="admin@verde.com" required />
+        </div>
+        <div class="field">
+          <label for="login-senha">Senha</label>
+          <input type="password" id="login-senha" placeholder="123456" required />
+        </div>
+        <p id="login-error" class="form-error hidden"></p>
+        <button type="submit" class="btn btn-primary btn-block" id="login-btn">
+          Entrar
+        </button>
+      </form>
+      <p class="login-hint">Credenciais de teste: admin@verde.com / 123456</p>
+    </div>
+  </div>
+
+  <!-- App -->
+  <div id="view-app" class="app-view hidden">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <span class="brand-icon">+</span>
+        <span>+Verde</span>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="nav-link active" data-view="dashboard">Dashboard</button>
+        <button class="nav-link" data-view="usuarios">Usuários</button>
+        <button class="nav-link" data-view="areas">Áreas</button>
+        <button class="nav-link" data-view="ongs">ONGs</button>
+        <button class="nav-link" data-view="denuncias">Denúncias</button>
+      </nav>
+      <button id="logout-btn" class="btn btn-outline btn-block">Sair</button>
+    </aside>
+
+    <main class="content">
+      <header class="content-header">
+        <h2 id="page-title">Dashboard</h2>
+      </header>
+
+      <!-- Dashboard -->
+      <section id="view-dashboard" class="page active">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-label">Usuários</span>
+            <span class="stat-value" id="stat-usuarios">-</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Admins</span>
+            <span class="stat-value" id="stat-admins">-</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Usuários comuns</span>
+            <span class="stat-value" id="stat-comuns">-</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Áreas</span>
+            <span class="stat-value" id="stat-areas">-</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">ONGs</span>
+            <span class="stat-value" id="stat-ongs">-</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Projetos</span>
+            <span class="stat-value" id="stat-projetos">-</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Denúncias</span>
+            <span class="stat-value" id="stat-denuncias">-</span>
+          </div>
+          <div class="stat-card stat-card-warn">
+            <span class="stat-label">Denúncias abertas</span>
+            <span class="stat-value" id="stat-denuncias-abertas">-</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Usuários -->
+      <section id="view-usuarios" class="page">
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Perfil</th>
+              </tr>
+            </thead>
+            <tbody id="usuarios-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Áreas -->
+      <section id="view-areas" class="page">
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Cidade</th>
+                <th>Bairro</th>
+                <th>Rua</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="areas-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ONGs -->
+      <section id="view-ongs" class="page">
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Região</th>
+                <th>CNPJ</th>
+                <th>Telefone</th>
+                <th>Descrição</th>
+                <th>Responsável</th>
+              </tr>
+            </thead>
+            <tbody id="ongs-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Denúncias -->
+      <section id="view-denuncias" class="page">
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Status</th>
+                <th>Área</th>
+                <th>Autor</th>
+                <th>Data</th>
+                <th>Descrição</th>
+              </tr>
+            </thead>
+            <tbody id="denuncias-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

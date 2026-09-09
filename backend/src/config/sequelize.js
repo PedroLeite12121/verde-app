@@ -9,9 +9,7 @@ const sequelize = new Sequelize(dbConfig.url, {
   logging: dbConfig.logging || false,
   dialectOptions: dbConfig.dialectOptions || {},
   define: {
-    timestamps: true,
-    underscored: true,
-    underscoredAll: true,
+    timestamps: false,
   },
 });
 
