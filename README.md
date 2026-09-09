@@ -205,6 +205,7 @@ O Docker tem hot reload: alterações em `backend/src/` reiniciam o servidor aut
 | `npm run migrate` | Roda migrations |
 | `npm run seed` | Roda seeders |
 | `npm run reset` | Apaga tudo e reinicia o banco |
+| `npm run test` | Roda a suíte de testes automatizados (Jest + Supertest) no container |
 | `npm run admin` | Sobe o painel admin web (`http://localhost:3000`) |
 
 #### Portas
@@ -431,6 +432,36 @@ de CORS na demonstração. Para mudar a porta ou o backend:
 ```bash
 PORT=3001 BACKEND_URL=http://localhost:3333 npm run admin
 ```
+
+---
+
+## Testes Automatizados
+
+O backend usa **Jest + Supertest** (padrão de mercado para APIs Express). Os testes rodam contra um
+banco isolado (`verde_db_test`, criado automaticamente), com migrations e seeders próprios — sem
+tocar no banco de demonstração.
+
+```bash
+# Rodar tudo (recria o banco de teste, aplica migrations + seeders e executa a suíte)
+npm run test
+
+# Dentro da pasta backend, rodar só os testes (sem recriar o banco)
+cd backend
+npm test                  # executa uma vez
+npm run test:watch        # fica assistindo as mudanças
+```
+
+Cobertura atual (57 testes):
+
+| Suíte | O que verifica |
+|-------|----------------|
+| `tests/auth.test.js` | Login (admin/comum, senha errada, email inexistente, validação) e registro (criação, duplicado, obrigatórios) |
+| `tests/admin.test.js` | Acesso restrito a admin (401/403), dashboard com estatísticas e listagens (usuários, áreas, ONGs, denúncias) |
+| `tests/usuarios.test.js` | Perfil (buscar, atualizar, deletar conta) |
+| `tests/areas.test.js` | CRUD de áreas, filtros (bairro, status) e suíte garante que tudo é da região Cidade Tiradentes |
+| `tests/ongs.test.js` | Listagem, busca, filtro por região e criação de ONG |
+| `tests/projetos.test.js` | CRUD de projetos com controle de dono (403 para terceiros) |
+| `tests/denuncias.test.js` | Listagem, filtros, criação em área válida/inválida e atualização de status |
 
 ---
 

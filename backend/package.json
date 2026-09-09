@@ -18,6 +18,10 @@
     "docker:migrate": "docker compose exec backend npm run migrate",
     "docker:seed": "docker compose exec backend npm run seed",
     "docker:setup": "docker compose up -d db && node -e \"setTimeout(() => process.exit(0), 5000)\" && npm run docker:migrate && npm run docker:seed",
+    "test": "jest --runInBand --forceExit",
+    "test:watch": "jest --watch --runInBand --forceExit",
+    "test:setup": "node scripts/setupTestDb.js",
+    "test:all": "npm run test:setup && npm test",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix"
   },
@@ -38,6 +42,8 @@
   },
   "devDependencies": {
     "eslint": "^8.57.0",
-    "nodemon": "^3.1.4"
+    "jest": "^30.5.1",
+    "nodemon": "^3.1.4",
+    "supertest": "^7.2.2"
   }
 }
