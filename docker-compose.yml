@@ -35,7 +35,7 @@ services:
       - DB_PASSWORD=root
       - JWT_SECRET=verde-dev-secret-key-2024
       - JWT_EXPIRES_IN=7d
-      - CORS_ORIGIN=http://localhost:3000
+      - CORS_ORIGIN=http://localhost:8081
     volumes:
       - ./backend:/app
       - /app/node_modules

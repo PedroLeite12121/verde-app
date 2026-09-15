@@ -22,10 +22,10 @@ export function AuthProvider({ children }) {
     setLoading(false);
   };
 
-  const signIn = async (email, password) => {
+  const signIn = async (email, senha) => {
     try {
-      const response = await api.post('/auth/login', { email, password });
-      const { user: userData, token } = response.data;
+      const response = await api.post('/auth/login', { email, senha });
+      const { usuario: userData, token } = response.data;
 
       await AsyncStorage.setItem('@verde:user', JSON.stringify(userData));
       await AsyncStorage.setItem('@verde:token', token);
