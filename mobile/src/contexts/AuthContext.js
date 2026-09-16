@@ -41,10 +41,22 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const signUp = async (name, email, password, phone) => {
+  const signUp = async (nome, email, senha, cpf, dataNasc) => {
     try {
-      const response = await api.post('/auth/register', { name, email, password, phone });
-      const { user: userData, token } = response.data;
+      let formattedDate = dataNasc;
+
+      if (dataNasc) {
+        const cleanDate = dataNasc.replace(/-/g, '/'); 
+        const [day, month, year] = cleanDate.split('/');
+        if (day && month && year) {
+          formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+        }
+      }
+
+      const cpfFormat = cpf.replace(/\D/g, '')
+
+      const response = await api.post('/auth/register', { nome, email, senha, cpfFormat, dataNasc });
+      const { usuario: userData, token } = response.data;
 
       await AsyncStorage.setItem('@verde:user', JSON.stringify(userData));
       await AsyncStorage.setItem('@verde:token', token);
@@ -53,6 +65,7 @@ export function AuthProvider({ children }) {
 
       return { success: true };
     } catch (err) {
+      console.log('Detalhes do Erro 400:', err.response?.data);
       return {
         success: false,
         error: err.response?.data?.error || 'Erro ao criar conta',
