@@ -1,17 +1,25 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
+
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
 
   const handleLogout = () => {
+  if (Platform.OS === 'web') {
+    const confirmed = window.confirm('Deseja sair da conta?');
+    if (confirmed) {
+      signOut();
+    }
+  } else {
     Alert.alert('Sair', 'Deseja sair da conta?', [
       { text: 'Cancelar', style: 'cancel' },
       { text: 'Sair', style: 'destructive', onPress: signOut },
     ]);
-  };
+  }
+};
 
   return (
     <View style={styles.container}>

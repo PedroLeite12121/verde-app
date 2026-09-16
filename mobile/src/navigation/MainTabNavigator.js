@@ -23,6 +23,7 @@ export default function MainTabNavigator() {
         headerShown: false,
         tabBarActiveTintColor: COLORS.primary,
         tabBarInactiveTintColor: COLORS.inactive,
+        
         tabBarIcon: ({ color, size }) => {
           let iconName;
           switch (route.name) {
