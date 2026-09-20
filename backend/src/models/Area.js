@@ -23,6 +23,14 @@ const Area = sequelize.define('Area', {
     type: DataTypes.STRING(20),
     defaultValue: 'identificada',
   },
+  latitude: {
+    type: DataTypes.DOUBLE,
+    allowNull: true,
+  },
+  longitude: {
+    type: DataTypes.DOUBLE,
+    allowNull: true,
+  },
 }, {
   tableName: 'tbl_Area',
   timestamps: false,

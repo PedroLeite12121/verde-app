@@ -1,11 +1,11 @@
-CREATE DATABASE dbDadosVerde;
+CREATE DATABASE IF NOT EXISTS dbDadosVerde;
 USE dbDadosVerde;
 
 -- Tabelas fortes
 CREATE TABLE tbl_Usuario(
 	idUsuario INT PRIMARY KEY AUTO_INCREMENT,
     nome VARCHAR (100),
-    senha VARCHAR (15),
+    senha VARCHAR (255),
     email VARCHAR (50)
 );
 
@@ -14,7 +14,9 @@ CREATE TABLE tbl_Area(
     cidade VARCHAR (30),
     bairro VARCHAR (30),
     rua VARCHAR (35),
-    statusArea VARCHAR (20)
+    statusArea VARCHAR (20),
+    latitude DOUBLE,
+    longitude DOUBLE
 );
 
 -- Tabelas fracas

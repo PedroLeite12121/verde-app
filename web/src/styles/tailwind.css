@@ -1,0 +1,48 @@
+@import 'tailwindcss' source(none);
+@source '../**/*.{js,ts,jsx,tsx}';
+
+@import 'tw-animate-css';
+@plugin 'daisyui' {
+  themes: false;
+}
+
+@plugin "daisyui/theme" {
+  name: "verde";
+  default: true;
+  color-scheme: light;
+
+  --color-base-100: #F7F5EF;
+  --color-base-200: #F0EDE3;
+  --color-base-300: #E3DFD0;
+  --color-base-content: #1C241F;
+
+  --color-primary: #166B44;
+  --color-primary-content: #F0F8F2;
+
+  --color-secondary: #0C3322;
+  --color-secondary-content: #D9EDE1;
+
+  --color-accent: #DB9E36;
+  --color-accent-content: #2B1D06;
+
+  --color-neutral: #22332B;
+  --color-neutral-content: #F0F4F1;
+
+  --color-info: #3B6E9F;
+  --color-info-content: #EEF5FB;
+  --color-success: #2E8B57;
+  --color-success-content: #EFF9F3;
+  --color-warning: #C9731D;
+  --color-warning-content: #FBF0E2;
+  --color-error: #B3402A;
+  --color-error-content: #FBEBE7;
+
+  --radius-selector: 0.6rem;
+  --radius-field: 0.5rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}

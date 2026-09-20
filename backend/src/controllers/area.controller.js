@@ -1,4 +1,5 @@
 const { Area, Denuncias, Usuario } = require('../models');
+const { geocodeAddress } = require('../services/geocode');
 
 const listAreas = async (req, res) => {
   try {
@@ -33,12 +34,29 @@ const getArea = async (req, res) => {
 
 const createArea = async (req, res) => {
   try {
-    const { cidade, bairro, rua, statusArea } = req.body;
+    const { cidade, bairro, rua, statusArea, latitude, longitude } = req.body;
 
-    const area = await Area.create({ cidade, bairro, rua, statusArea });
+    const data = { cidade, bairro, rua, statusArea };
+
+    const hasCoords =
+      Number.isFinite(Number(latitude)) && Number.isFinite(Number(longitude));
+
+    if (hasCoords) {
+      data.latitude = Number(latitude);
+      data.longitude = Number(longitude);
+    } else {
+      const coords = await geocodeAddress({ rua, bairro, cidade });
+      if (coords) {
+        data.latitude = coords.latitude;
+        data.longitude = coords.longitude;
+      }
+    }
+
+    const area = await Area.create(data);
 
     return res.status(201).json({ area });
   } catch (err) {
+    console.error(err);
     return res.status(500).json({ error: 'Erro ao criar área' });
   }
 };
