@@ -1,6 +1,36 @@
 const { Area, Denuncias, Usuario } = require('../models');
 const { geocodeAddress } = require('../services/geocode');
 
+function parseRaio(value) {
+  if (value === undefined || value === null || value === '') return undefined;
+  const n = Number(value);
+  if (!Number.isFinite(n) || n <= 0) return undefined;
+  return Math.min(Math.max(n, 20), 5000);
+}
+
+function parsePoligono(value) {
+  if (value === undefined || value === null || value === '') return undefined;
+  let arr = value;
+  if (typeof value === 'string') {
+    try {
+      arr = JSON.parse(value);
+    } catch {
+      return null; // string inválida -> ignora
+    }
+  }
+  if (!Array.isArray(arr) || arr.length < 3) return null;
+  const clean = [];
+  for (const p of arr) {
+    if (!Array.isArray(p) || p.length < 2) return null;
+    const lat = Number(p[0]);
+    const lng = Number(p[1]);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
+    clean.push([lat, lng]);
+  }
+  return JSON.stringify(clean);
+}
+
 const listAreas = async (req, res) => {
   try {
     const { cidade, bairro, statusArea } = req.query;
@@ -34,9 +64,15 @@ const getArea = async (req, res) => {
 
 const createArea = async (req, res) => {
   try {
-    const { cidade, bairro, rua, statusArea, latitude, longitude } = req.body;
+    const { cidade, bairro, rua, statusArea, latitude, longitude, raio, poligono } = req.body;
 
     const data = { cidade, bairro, rua, statusArea };
+
+    const raioNum = parseRaio(raio);
+    if (raioNum !== undefined) data.raio = raioNum;
+
+    const poli = parsePoligono(poligono);
+    if (poli) data.poligono = poli;
 
     const hasCoords =
       Number.isFinite(Number(latitude)) && Number.isFinite(Number(longitude));
@@ -69,7 +105,21 @@ const updateArea = async (req, res) => {
       return res.status(404).json({ error: 'Área não encontrada' });
     }
 
-    await area.update(req.body);
+    const body = { ...req.body };
+    if ('raio' in body) {
+      const r = parseRaio(body.raio);
+      if (r === undefined) delete body.raio;
+      else body.raio = r;
+    }
+    if ('poligono' in body) {
+      const p = parsePoligono(body.poligono);
+      // null = inválido ou vazio -> permite limpar com null/""
+      if (body.poligono === null || body.poligono === '') body.poligono = null;
+      else if (!p) delete body.poligono;
+      else body.poligono = p;
+    }
+
+    await area.update(body);
 
     return res.json({ area });
   } catch (err) {

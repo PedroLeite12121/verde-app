@@ -68,7 +68,7 @@ const listDenuncias = async (req, res) => {
     const denuncias = await Denuncias.findAll({
       include: [
         { model: Usuario, as: 'usuario', attributes: ['idUsuario', 'nome'] },
-        { model: Area, as: 'area', attributes: ['idArea', 'cidade', 'bairro', 'rua'] },
+        { model: Area, as: 'area', attributes: ['idArea', 'cidade', 'bairro', 'rua', 'latitude', 'longitude', 'raio', 'poligono', 'statusArea'] },
       ],
       order: [['idDenuncias', 'DESC']],
     });

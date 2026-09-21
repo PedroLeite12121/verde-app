@@ -9,18 +9,23 @@ const { Server } = require('socket.io');
 const routes = require('./routes');
 const errorHandler = require('./middlewares/errorHandler');
 
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000')
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+
 const app = express();
 const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
   },
 });
 
 app.use(helmet());
-app.use(cors({ origin: process.env.CORS_ORIGIN || 'http://localhost:3000' }));
+app.use(cors({ origin: allowedOrigins }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 

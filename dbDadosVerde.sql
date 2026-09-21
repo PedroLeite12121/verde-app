@@ -16,7 +16,9 @@ CREATE TABLE tbl_Area(
     rua VARCHAR (35),
     statusArea VARCHAR (20),
     latitude DOUBLE,
-    longitude DOUBLE
+    longitude DOUBLE,
+    raio DOUBLE DEFAULT 180,
+    poligono TEXT
 );
 
 -- Tabelas fracas

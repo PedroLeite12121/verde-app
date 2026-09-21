@@ -31,6 +31,17 @@ const Area = sequelize.define('Area', {
     type: DataTypes.DOUBLE,
     allowNull: true,
   },
+  raio: {
+    type: DataTypes.DOUBLE,
+    allowNull: true,
+    defaultValue: 180,
+    comment: 'Raio de demarcação da área em metros (desenhado como círculo no mapa)',
+  },
+  poligono: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    comment: 'Polígono irregular em JSON: [[lat,lng],[lat,lng],...]',
+  },
 }, {
   tableName: 'tbl_Area',
   timestamps: false,

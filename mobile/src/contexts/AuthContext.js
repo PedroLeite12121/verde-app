@@ -6,6 +6,7 @@ const AuthContext = createContext({});
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [tipo, setTipo] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -13,24 +14,37 @@ export function AuthProvider({ children }) {
   }, []);
 
   const loadStorage = async () => {
-    const storedUser = await AsyncStorage.getItem('@verde:user');
-    const storedToken = await AsyncStorage.getItem('@verde:token');
+    try {
+      const storedUser = await AsyncStorage.getItem('@verde:user');
+      const storedToken = await AsyncStorage.getItem('@verde:token');
+      const storedTipo = await AsyncStorage.getItem('@verde:tipo');
 
-    if (storedUser && storedToken) {
-      setUser(JSON.parse(storedUser));
+      if (storedUser && storedToken) {
+        setUser(JSON.parse(storedUser));
+        setTipo(storedTipo || 'comum');
+      }
+    } catch {
+      // Se o storage falhar, segue sem sessão em vez de travar em tela branca
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
-  const signIn = async (email, password) => {
+  const persist = async (userData, token, tipoValue) => {
+    await AsyncStorage.setItem('@verde:user', JSON.stringify(userData));
+    await AsyncStorage.setItem('@verde:token', token);
+    await AsyncStorage.setItem('@verde:tipo', tipoValue || 'comum');
+    setUser(userData);
+    setTipo(tipoValue || 'comum');
+  };
+
+  // Backend espera { email, senha } (não "password")
+  const signIn = async (email, senha) => {
     try {
-      const response = await api.post('/auth/login', { email, password });
-      const { user: userData, token } = response.data;
+      const response = await api.post('/auth/login', { email, senha });
+      const { usuario, token, tipo: tipoValue } = response.data;
 
-      await AsyncStorage.setItem('@verde:user', JSON.stringify(userData));
-      await AsyncStorage.setItem('@verde:token', token);
-
-      setUser(userData);
+      await persist(usuario, token, tipoValue);
 
       return { success: true };
     } catch (err) {
@@ -41,15 +55,17 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const signUp = async (name, email, password, phone) => {
+  // Backend espera { nome, email, senha, cpf?, dataNasc? }
+  const signUp = async ({ nome, email, senha, cpf, dataNasc }) => {
     try {
-      const response = await api.post('/auth/register', { name, email, password, phone });
-      const { user: userData, token } = response.data;
+      const body = { nome, email, senha };
+      if (cpf) body.cpf = cpf.replace(/\D/g, '');
+      if (dataNasc) body.dataNasc = dataNasc;
 
-      await AsyncStorage.setItem('@verde:user', JSON.stringify(userData));
-      await AsyncStorage.setItem('@verde:token', token);
+      const response = await api.post('/auth/register', body);
+      const { usuario, token } = response.data;
 
-      setUser(userData);
+      await persist(usuario, token, 'comum');
 
       return { success: true };
     } catch (err) {
@@ -63,7 +79,9 @@ export function AuthProvider({ children }) {
   const signOut = async () => {
     await AsyncStorage.removeItem('@verde:user');
     await AsyncStorage.removeItem('@verde:token');
+    await AsyncStorage.removeItem('@verde:tipo');
     setUser(null);
+    setTipo(null);
   };
 
   const updateUser = async (data) => {
@@ -73,7 +91,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, signIn, signUp, signOut, updateUser, isAdmin: user?.role === 'admin' }}
+      value={{ user, tipo, loading, signIn, signUp, signOut, updateUser, isAdmin: tipo === 'admin' }}
     >
       {children}
     </AuthContext.Provider>

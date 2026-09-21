@@ -27,10 +27,55 @@ module.exports = {
     ]);
 
     await queryInterface.bulkInsert('tbl_Area', [
-      { idArea: 1, cidade: 'São Paulo', bairro: 'Cidade Tiradentes', rua: 'Estrada do Iguatemi', statusArea: 'identificada' },
-      { idArea: 2, cidade: 'São Paulo', bairro: 'Cidade Tiradentes', rua: 'Rua Inácio Monteiro', statusArea: 'em tratamento' },
-      { idArea: 3, cidade: 'São Paulo', bairro: 'Cidade Tiradentes', rua: 'Av. dos Têxteis', statusArea: 'reflorestada' },
-      { idArea: 4, cidade: 'São Paulo', bairro: 'Cidade Tiradentes', rua: 'Rua Juá Mirim', statusArea: 'em tratamento' },
+      {
+        idArea: 1,
+        cidade: 'São Paulo',
+        bairro: 'Cidade Tiradentes',
+        rua: 'Estrada do Iguatemi',
+        statusArea: 'identificada',
+        latitude: -23.572,
+        longitude: -46.4205,
+        raio: 220,
+        poligono: null,
+      },
+      {
+        idArea: 2,
+        cidade: 'São Paulo',
+        bairro: 'Cidade Tiradentes',
+        rua: 'Rua Inácio Monteiro',
+        statusArea: 'em tratamento',
+        latitude: -23.5665,
+        longitude: -46.415,
+        raio: 150,
+        poligono: null,
+      },
+      {
+        idArea: 3,
+        cidade: 'São Paulo',
+        bairro: 'Cidade Tiradentes',
+        rua: 'Av. dos Têxteis',
+        statusArea: 'reflorestada',
+        latitude: -23.5715,
+        longitude: -46.427,
+        raio: 300,
+        poligono: null,
+      },
+      {
+        idArea: 4,
+        cidade: 'São Paulo',
+        bairro: 'Cidade Tiradentes',
+        rua: 'Rua Juá Mirim',
+        statusArea: 'em tratamento',
+        latitude: -23.564,
+        longitude: -46.422,
+        raio: 180,
+        poligono: JSON.stringify([
+          [-23.5632, -46.4232],
+          [-23.5632, -46.4208],
+          [-23.5648, -46.4208],
+          [-23.5648, -46.4232],
+        ]),
+      },
     ]);
 
     await queryInterface.bulkInsert('tbl_Projeto', [

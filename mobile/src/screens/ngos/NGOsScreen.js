@@ -1,51 +1,67 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { View, Text, FlatList, StyleSheet, RefreshControl } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 import api from '../../api';
+import { AppHeader, LoadingView, ErrorView, EmptyView } from '../../components/ui';
+import { COLORS } from '../../theme';
 
 export default function NGOsScreen() {
   const [ongs, setONGs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    loadONGs();
-  }, []);
-
-  const loadONGs = async () => {
+  const load = useCallback(async () => {
     try {
+      setError(null);
       const response = await api.get('/ongs');
-      setONGs(response.data.ongs);
+      setONGs(response.data.ongs ?? []);
     } catch (err) {
-      console.error(err);
+      setError(err.response?.data?.error || 'Sem conexão com o servidor.');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
-  };
+  }, []);
+
+  useFocusEffect(useCallback(() => { load(); }, [load]));
 
   const renderItem = ({ item }) => (
     <View style={styles.card}>
-      <Text style={styles.cardTitle}>{item.usuario?.nome || 'ONG'}</Text>
-      <Text style={styles.cardDescription}>{item.descricao || 'Sem descrição'}</Text>
-      <View style={styles.info}>
-        <Text style={styles.infoText}>Região: {item.regiao}</Text>
-        <Text style={styles.infoText}>Tel: {item.telefone || '-'}</Text>
+      <View style={styles.avatar}>
+        <Ionicons name="people" size={22} color={COLORS.primary} />
+      </View>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.cardTitle}>{item.usuario?.nome || 'ONG parceira'}</Text>
+        <Text style={styles.cardDescription} numberOfLines={2}>{item.descricao || 'Reflorestamento urbano'}</Text>
+        <View style={styles.info}>
+          <Text style={styles.infoText}>{item.regiao || 'Cidade Tiradentes'}</Text>
+          {item.telefone ? <Text style={styles.infoText}> · {item.telefone}</Text> : null}
+        </View>
       </View>
     </View>
   );
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>ONGs de Reflorestamento</Text>
-      </View>
+      <AppHeader title="ONGs" subtitle={`${ongs.length} parceiras na região`} />
       {loading ? (
-        <Text style={styles.loadingText}>Carregando...</Text>
+        <LoadingView label="Buscando ONGs..." />
+      ) : error && ongs.length === 0 ? (
+        <ErrorView message={error} onRetry={() => { setLoading(true); load(); }} />
       ) : (
         <FlatList
           data={ongs}
           keyExtractor={(item) => String(item.idOngs)}
           renderItem={renderItem}
           contentContainerStyle={styles.list}
-          ListEmptyComponent={<Text style={styles.emptyText}>Nenhuma ONG encontrada</Text>}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} colors={[COLORS.primary]} />
+          }
+          ListEmptyComponent={
+            <EmptyView icon="people-outline" title="Nenhuma ONG ainda" hint="As ONGs parceiras aparecem aqui." />
+          }
         />
       )}
     </View>
@@ -53,25 +69,20 @@ export default function NGOsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F0FDF4' },
-  header: { padding: 24, paddingTop: 60, backgroundColor: '#2D6A4F' },
-  title: { fontSize: 24, fontWeight: 'bold', color: '#fff' },
-  list: { padding: 16 },
+  container: { flex: 1, backgroundColor: COLORS.bg },
+  list: { padding: 16, paddingBottom: 32 },
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    flexDirection: 'row', gap: 12,
+    backgroundColor: '#fff', borderRadius: 14, padding: 16, marginBottom: 10,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06, shadowRadius: 3, elevation: 2,
   },
-  cardTitle: { fontSize: 18, fontWeight: 'bold', color: '#1F2937' },
-  cardDescription: { color: '#6B7280', marginTop: 8, fontSize: 14 },
-  info: { flexDirection: 'row', gap: 16, marginTop: 12 },
-  infoText: { color: '#2D6A4F', fontWeight: 'bold', fontSize: 14 },
-  loadingText: { textAlign: 'center', color: '#6B7280', marginTop: 40 },
-  emptyText: { textAlign: 'center', color: '#9CA3AF', marginTop: 40 },
+  avatar: {
+    width: 46, height: 46, borderRadius: 23,
+    backgroundColor: '#E3F2E9', alignItems: 'center', justifyContent: 'center',
+  },
+  cardTitle: { fontSize: 16, fontWeight: 'bold', color: COLORS.text },
+  cardDescription: { color: COLORS.muted, marginTop: 4, fontSize: 14 },
+  info: { flexDirection: 'row', marginTop: 8, flexWrap: 'wrap' },
+  infoText: { color: COLORS.primary, fontWeight: 'bold', fontSize: 13 },
 });

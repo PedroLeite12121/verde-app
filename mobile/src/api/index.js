@@ -1,8 +1,17 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// No celular físico, "localhost" é o próprio celular e não alcança o PC.
+// Rode o Expo com: EXPO_PUBLIC_API_URL=http://<IP-DO-PC>:3333/api npx expo start
+// (ex: EXPO_PUBLIC_API_URL=http://192.168.0.12:3333/api). No emulador/web,
+// o fallback localhost funciona.
+const BASE_URL =
+  process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3333/api';
+
+export const API_BASE_URL = BASE_URL;
+
 const api = axios.create({
-  baseURL: 'http://localhost:3333/api',
+  baseURL: BASE_URL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

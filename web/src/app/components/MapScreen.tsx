@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router";
-import { MapContainer, TileLayer, Marker, Circle, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Circle, Polygon, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
-import { AlertTriangle, Crosshair, Navigation, Search } from "lucide-react";
+import { AlertTriangle, Crosshair, Expand, MapPin, Navigation, Search } from "lucide-react";
 import { api, type Area, type Denuncia } from "../../lib/api";
 import { useFetch } from "../../lib/use-fetch";
 import { Card, DataError, EmptyState, Loading, StatusBadge, num } from "./ui";
@@ -27,6 +27,12 @@ const DEN_STATUS: Record<string, { label: string; join: string }> = {
   resolvido: { label: "Resolvida", join: "badge-success" },
 };
 
+const DEFAULT_RAIO: Record<string, number> = {
+  identificada: 220,
+  "em tratamento": 170,
+  reflorestada: 280,
+};
+
 type Tab = "areas" | "denuncias";
 
 const AREA_FILTERS = [
@@ -43,15 +49,52 @@ const DEN_FILTERS = [
   { key: "resolvido", label: "Resolvidas" },
 ] as const;
 
+type LatLng = [number, number];
+
 type Row = {
   key: string;
   kind: "area" | "denuncia";
+  id: number;
   title: string;
   sub: string;
   status: string;
   lat: number | null;
   lng: number | null;
+  raio: number | null;
+  poligono: LatLng[] | null;
+  denunciasCount?: number;
 };
+
+function parsePoligono(raw: Area["poligono"]): LatLng[] | null {
+  if (!raw) return null;
+  try {
+    const arr = typeof raw === "string" ? JSON.parse(raw) : raw;
+    if (!Array.isArray(arr) || arr.length < 3) return null;
+    const clean: LatLng[] = [];
+    for (const p of arr) {
+      if (!Array.isArray(p) || p.length < 2) return null;
+      const lat = Number(p[0]);
+      const lng = Number(p[1]);
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+      clean.push([lat, lng]);
+    }
+    return clean;
+  } catch {
+    return null;
+  }
+}
+
+function raioOf(status: string, raio?: number | null): number {
+  if (typeof raio === "number" && Number.isFinite(raio) && raio > 0) return raio;
+  return DEFAULT_RAIO[status] ?? 180;
+}
+
+function fmtAreaM2(raioM: number): string {
+  const m2 = Math.PI * raioM * raioM;
+  if (m2 >= 1_000_000) return `${(m2 / 1_000_000).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} km²`;
+  if (m2 >= 10_000) return `${(m2 / 10_000).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} ha`;
+  return `~${Math.round(m2).toLocaleString("pt-BR")} m²`;
+}
 
 function pinIcon(color: string, label?: string) {
   return L.divIcon({
@@ -85,6 +128,28 @@ function MapController({ user }: { user: { lat: number; lng: number } | null }) 
   return null;
 }
 
+function FitAll({ points, signal }: { points: LatLng[]; signal: number }) {
+  const map = useMap();
+  const last = useRef(0);
+  useEffect(() => {
+    if (!signal || signal === last.current || points.length === 0) return;
+    last.current = signal;
+    const bounds = L.latLngBounds(points.map(([la, ln]) => [la, ln] as [number, number]));
+    map.flyToBounds(bounds.pad(0.25), { duration: 0.9 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [signal]);
+  return null;
+}
+
+function FocusSelected({ row }: { row: Row | null }) {
+  const map = useMap();
+  useEffect(() => {
+    if (!row || row.lat === null || row.lng === null) return;
+    map.flyTo([row.lat, row.lng], Math.max(map.getZoom(), 15), { duration: 0.8 });
+  }, [row?.key]); // eslint-disable-line react-hooks/exhaustive-deps
+  return null;
+}
+
 function haversineM(lat1: number, lng1: number, lat2: number, lng2: number) {
   const R = 6371000;
   const toRad = (d: number) => (d * Math.PI) / 180;
@@ -111,12 +176,19 @@ export function MapScreen() {
   const [userPos, setUserPos] = useState<{ lat: number; lng: number } | null>(null);
   const [locError, setLocError] = useState<string | null>(null);
   const [locating, setLocating] = useState(false);
+  const [fitSignal, setFitSignal] = useState(0);
 
   const areas = useFetch<Area[]>(() => api.get("/areas").then((r) => r.areas));
   const denuncias = useFetch<Denuncia[]>(() => api.get("/denuncias").then((r) => r.denuncias));
 
   const areaList = areas.data ?? [];
   const denList = denuncias.data ?? [];
+
+  const denCountByArea = useMemo(() => {
+    const m = new Map<number, number>();
+    for (const d of denList) m.set(d.idArea, (m.get(d.idArea) ?? 0) + 1);
+    return m;
+  }, [denList]);
 
   const rows: Row[] = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -134,11 +206,15 @@ export function MapScreen() {
         .map((a) => ({
           key: `a-${a.idArea}`,
           kind: "area" as const,
+          id: a.idArea,
           title: a.rua,
-          sub: a.bairro || "Cidade Tiradentes",
+          sub: `${a.bairro || "Cidade Tiradentes"} · ${a.cidade || "São Paulo"}`,
           status: a.statusArea,
           lat: a.latitude,
           lng: a.longitude,
+          raio: typeof a.raio === "number" ? a.raio : null,
+          poligono: parsePoligono(a.poligono),
+          denunciasCount: denCountByArea.get(a.idArea) ?? 0,
         }));
     }
     const f = filter || "all";
@@ -153,13 +229,16 @@ export function MapScreen() {
       .map((d) => ({
         key: `d-${d.idDenuncias}`,
         kind: "denuncia" as const,
+        id: d.idDenuncias,
         title: d.titulo,
         sub: `${d.area?.rua || d.area?.bairro || "Cidade Tiradentes"} · ${d.dataDenuncia}`,
         status: d.statusDenuncia,
         lat: d.area?.latitude ?? null,
         lng: d.area?.longitude ?? null,
+        raio: typeof d.area?.raio === "number" ? d.area.raio : null,
+        poligono: parsePoligono(d.area?.poligono),
       }));
-  }, [tab, filter, query, areaList, denList]);
+  }, [tab, filter, query, areaList, denList, denCountByArea]);
 
   const sortedRows = useMemo(() => {
     const list = [...rows];
@@ -180,6 +259,11 @@ export function MapScreen() {
   }, [rows, userPos]);
 
   const markers = sortedRows.filter((r) => r.lat !== null && r.lng !== null);
+  const unmapped = sortedRows.length - markers.length;
+  const fitPoints: LatLng[] = useMemo(
+    () => markers.map((r) => [r.lat as number, r.lng as number]),
+    [markers],
+  );
 
   const changeTab = (t: Tab) => {
     setTab(t);
@@ -259,8 +343,8 @@ export function MapScreen() {
         </div>
       </div>
 
-      {/* ── Mapa real ── */}
-      <div className="relative h-[40vh] shrink-0 overflow-hidden">
+      {/* ── Mapa real com áreas demarcadas ── */}
+      <div className="relative h-[42vh] shrink-0 overflow-hidden">
         <MapContainer
           center={[CT_CENTER.lat, CT_CENTER.lng]}
           zoom={13}
@@ -273,20 +357,59 @@ export function MapScreen() {
             url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           <MapController user={userPos} />
+          <FitAll points={fitPoints} signal={fitSignal} />
+          <FocusSelected row={selected} />
 
           {markers.map((r) => {
-            const color =
-              r.kind === "area"
-                ? (AREA_COLORS[r.status] ?? AREA_COLORS.identificada)
-                : "#C9731D";
-            const pulse = r === selected;
+            const isArea = r.kind === "area";
+            const color = isArea
+              ? (AREA_COLORS[r.status] ?? AREA_COLORS.identificada)
+              : "#C9731D";
+            const pulse = selected?.key === r.key;
+            const raio = raioOf(r.status, r.raio);
+            const shapeOpts = {
+              color,
+              weight: pulse ? 3 : 2,
+              opacity: 0.95,
+              fillColor: color,
+              fillOpacity: pulse ? 0.35 : 0.22,
+              dashArray: isArea && r.status === "reflorestada" ? undefined : pulse ? undefined : "6 4",
+            };
+            const popupAddr = r.sub;
             return (
-              <Marker
-                key={r.key}
-                position={[r.lat!, r.lng!]}
-                icon={pulse ? pinIcon(color, "✓") : pinIcon(color, r.kind === "area" ? "" : "!")}
-                eventHandlers={{ click: () => setSelected(r) }}
-              />
+              <span key={r.key}>
+                {r.poligono ? (
+                  <Polygon positions={r.poligono} pathOptions={shapeOpts} eventHandlers={{ click: () => setSelected(r) }} />
+                ) : (
+                  <Circle center={[r.lat!, r.lng!]} radius={raio} pathOptions={shapeOpts} eventHandlers={{ click: () => setSelected(r) }} />
+                )}
+                <Marker
+                  position={[r.lat!, r.lng!]}
+                  icon={pulse ? pinIcon(color, "✓") : pinIcon(color, isArea ? "" : "!")}
+                  eventHandlers={{ click: () => setSelected(r) }}
+                >
+                  <Popup>
+                    <div style={{ minWidth: 190 }}>
+                      <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".08em", color: "#6b7280" }}>
+                        {isArea ? "Área demarcada" : "Denúncia"}
+                      </p>
+                      <p style={{ fontSize: 14, fontWeight: 700, margin: "4px 0 2px" }}>{r.title}</p>
+                      <p style={{ fontSize: 12, color: "#6b7280", display: "flex", alignItems: "center", gap: 4 }}>
+                        <MapPin size={11} /> {popupAddr}
+                      </p>
+                      <p style={{ fontSize: 12, marginTop: 6 }}>
+                        Status: <b>{(isArea ? AREA_STATUS[r.status]?.label : DEN_STATUS[r.status]?.label) ?? r.status}</b>
+                        {isArea && (
+                          <>
+                            <br />Cobertura: <b>{r.poligono ? "polígono irregular" : fmtAreaM2(raio)}</b>
+                            <br />Denúncias: <b>{r.denunciasCount ?? 0}</b>
+                          </>
+                        )}
+                      </p>
+                    </div>
+                  </Popup>
+                </Marker>
+              </span>
             );
           })}
 
@@ -298,26 +421,64 @@ export function MapScreen() {
           )}
         </MapContainer>
 
-        {/* Locate me */}
-        <button
-          onClick={locate}
-          disabled={locating}
-          className="absolute right-3 top-3 z-[600] flex size-11 items-center justify-center rounded-full border border-black/[0.07] bg-white/95 text-primary shadow-[0_2px_12px_rgba(20,36,27,0.18)] disabled:opacity-60"
-          aria-label="Minha localização"
-        >
-          {locating ? <Crosshair size={18} className="animate-spin" /> : <Navigation size={18} />}
-        </button>
+        {/* Controles */}
+        <div className="absolute right-3 top-3 z-[600] flex flex-col gap-2">
+          <button
+            onClick={locate}
+            disabled={locating}
+            className="flex size-11 items-center justify-center rounded-full border border-black/[0.07] bg-white/95 text-primary shadow-[0_2px_12px_rgba(20,36,27,0.18)] disabled:opacity-60"
+            aria-label="Minha localização"
+            title="Minha localização"
+          >
+            {locating ? <Crosshair size={18} className="animate-spin" /> : <Navigation size={18} />}
+          </button>
+          <button
+            onClick={() => setFitSignal((s) => s + 1)}
+            disabled={markers.length === 0}
+            className="flex size-11 items-center justify-center rounded-full border border-black/[0.07] bg-white/95 text-primary shadow-[0_2px_12px_rgba(20,36,27,0.18)] disabled:opacity-50"
+            aria-label="Ver todas as áreas"
+            title="Ver todas as áreas"
+          >
+            <Expand size={18} />
+          </button>
+        </div>
 
         {userPos && (
           <span className="absolute left-3 top-3 z-[600] flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-semibold text-foreground shadow-[0_2px_10px_rgba(20,36,27,0.15)]">
             <span className="size-2 rounded-full bg-blue-600" /> Você está aqui
           </span>
         )}
+
+        {/* Legenda */}
+        <div className="absolute bottom-3 left-3 z-[600] rounded-xl border border-black/[0.06] bg-white/95 px-3 py-2 shadow-[0_2px_10px_rgba(20,36,27,0.15)] backdrop-blur">
+          <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">Demarcação</p>
+          <div className="flex flex-col gap-1">
+            <span className="flex items-center gap-1.5 text-[11px] font-medium text-foreground">
+              <span className="size-2.5 rounded-full" style={{ background: AREA_COLORS.identificada }} /> Déficit
+            </span>
+            <span className="flex items-center gap-1.5 text-[11px] font-medium text-foreground">
+              <span className="size-2.5 rounded-full" style={{ background: AREA_COLORS["em tratamento"] }} /> Em tratamento
+            </span>
+            <span className="flex items-center gap-1.5 text-[11px] font-medium text-foreground">
+              <span className="size-2.5 rounded-full" style={{ background: AREA_COLORS.reflorestada }} /> Reflorestada
+            </span>
+          </div>
+        </div>
+
+        <span className="absolute bottom-3 right-3 z-[600] rounded-full bg-black/55 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur">
+          {num(markers.length)} demarcada{markers.length === 1 ? "" : "s"}
+        </span>
       </div>
 
       {locError && (
         <p className="flex items-center gap-2 bg-error/10 px-4 py-2 text-xs font-medium text-error">
           <AlertTriangle size={13} className="shrink-0" /> {locError}
+        </p>
+      )}
+      {unmapped > 0 && !loading && (
+        <p className="flex items-center gap-2 bg-warning/10 px-4 py-2 text-xs font-medium text-warning">
+          <MapPin size={13} className="shrink-0" />
+          {num(unmapped)} registro{unmapped === 1 ? "" : "s"} sem coordenadas — {tab === "areas" ? "edite a área informando latitude/longitude." : "a área da denúncia ainda não foi geocodificada."}
         </p>
       )}
 
@@ -346,6 +507,7 @@ export function MapScreen() {
                     ? haversineM(userPos.lat, userPos.lng, r.lat, r.lng)
                     : null;
                 const active = selected?.key === r.key;
+                const noGeo = r.lat === null || r.lng === null;
                 return (
                   <button
                     key={r.key}
@@ -363,12 +525,17 @@ export function MapScreen() {
                           r.kind === "area"
                             ? (AREA_COLORS[r.status] ?? AREA_COLORS.identificada)
                             : "#C9731D",
+                        opacity: noGeo ? 0.35 : 1,
                       }}
                     />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-semibold text-foreground">{r.title}</p>
                       <p className="truncate text-xs text-muted-foreground">
                         {r.sub}
+                        {r.kind === "area" && !noGeo && (
+                          <span className="font-medium"> · {r.poligono ? "polígono" : fmtAreaM2(raioOf(r.status, r.raio))}</span>
+                        )}
+                        {noGeo && <span className="font-medium"> · sem mapa</span>}
                         {dist !== null && <span className="font-medium text-primary"> · {fmtDist(dist)}</span>}
                       </p>
                     </div>
@@ -389,6 +556,15 @@ export function MapScreen() {
                 </p>
                 <p className="mt-1.5 font-display text-lg font-semibold leading-snug text-foreground">
                   {selected.title}
+                </p>
+                <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
+                  {selected.sub}
+                  {selected.kind === "area" && selected.lat !== null && (
+                    <> · cobertura {selected.poligono ? "em polígono irregular" : fmtAreaM2(raioOf(selected.status, selected.raio))}</>
+                  )}
+                  {selected.kind === "area" && (selected.denunciasCount ?? 0) > 0 && (
+                    <> · {num(selected.denunciasCount)} denúncia{(selected.denunciasCount ?? 0) === 1 ? "" : "s"}</>
+                  )}
                 </p>
                 {selected.kind === "area" && selected.status === "identificada" && (
                   <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">

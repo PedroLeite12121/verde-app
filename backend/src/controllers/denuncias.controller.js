@@ -12,7 +12,7 @@ const listDenuncias = async (req, res) => {
       where,
       include: [
         { model: Usuario, as: 'usuario', attributes: ['idUsuario', 'nome'] },
-        { model: Area, as: 'area', attributes: ['idArea', 'cidade', 'bairro', 'rua'] },
+        { model: Area, as: 'area', attributes: ['idArea', 'cidade', 'bairro', 'rua', 'latitude', 'longitude', 'raio', 'poligono', 'statusArea'] },
       ],
       order: [['idDenuncias', 'DESC']],
     });

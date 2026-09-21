@@ -12,6 +12,8 @@ export type Area = {
   statusArea: string;
   latitude: number | null;
   longitude: number | null;
+  raio?: number | null;
+  poligono?: string | [number, number][] | null;
 };
 
 export type Denuncia = {
@@ -24,7 +26,7 @@ export type Denuncia = {
   descricao: string | null;
   foto: string | null;
   usuario?: Pick<Usuario, "idUsuario" | "nome">;
-  area?: Pick<Area, "idArea" | "cidade" | "bairro" | "rua" | "latitude" | "longitude">;
+  area?: Pick<Area, "idArea" | "cidade" | "bairro" | "rua" | "latitude" | "longitude" | "raio" | "poligono" | "statusArea">;
 };
 
 export type Ong = {
