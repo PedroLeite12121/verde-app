@@ -41,7 +41,7 @@ export default function MainTabNavigator() {
       <Tab.Screen name="Mapa" component={MapScreen} />
       <Tab.Screen name="Areas" component={AreasScreen} options={{ title: 'Áreas' }} />
       <Tab.Screen name="Denuncias" component={DenunciasScreen} options={{ title: 'Denúncias' }} />
-      <Tab.Screen name="ONGs" component={ONGsScreen} options={{ title: 'ONGs' }} />
+      <Tab.Screen name="ONGs" component={NGOsScreen} options={{ title: 'ONGs' }} />
       <Tab.Screen name="Projetos" component={ProjetosScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: 'Perfil' }} />
     </Tab.Navigator>
