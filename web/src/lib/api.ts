@@ -1,7 +1,10 @@
 export type Usuario = {
   idUsuario: number;
+  idNivel_Usuario: number;
   nome: string;
   email: string;
+  cpf: string | null;
+  dataNasc: Date | null 
 };
 
 export type Area = {

@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { Usuario, UsuarioComum, Admin } = require('../models');
+const { Usuario } = require('../models');
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN || '7d' });
@@ -14,11 +14,7 @@ const register = async (req, res) => {
       return res.status(409).json({ error: 'Email já cadastrado' });
     }
 
-    const usuario = await Usuario.create({ nome, email, senha });
-
-    if (cpf) {
-      await UsuarioComum.create({ idUsuario: usuario.idUsuario, cpf, dataNasc });
-    }
+    const usuario = await Usuario.create({ idNivel_Usuario: 1, nome, email, senha, cpf, dataNasc });
 
     const token = generateToken(usuario.idUsuario);
 
@@ -43,14 +39,23 @@ const login = async (req, res) => {
       return res.status(401).json({ error: 'Credenciais inválidas' });
     }
 
-    const admin = await Admin.findOne({ where: { idUsuario: usuario.idUsuario } });
-    const comum = await UsuarioComum.findOne({ where: { idUsuario: usuario.idUsuario } });
+    let tipo = 'comum'
+
+    const nivel_usuario = usuario.idNivel_Usuario
+    if (nivel_usuario == 2) {
+      tipo = 'ong'
+    } 
+    if (nivel_usuario == 3) {
+      tipo = 'admin'
+    }
+
+    console.log(tipo)
 
     const token = generateToken(usuario.idUsuario);
 
     return res.json({
       usuario,
-      tipo: admin ? 'admin' : 'comum',
+      tipo,
       token,
     });
   } catch (err) {

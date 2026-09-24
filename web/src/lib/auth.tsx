@@ -84,6 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       tipo: Tipo;
       token: string;
     }>("/auth/login", { email, senha });
+
     setToken(data.token);
     setStoredUser({ usuario: data.usuario, tipo: data.tipo });
     setUser(data.usuario);

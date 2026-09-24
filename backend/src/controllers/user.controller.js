@@ -1,16 +1,14 @@
-const { Usuario, UsuarioComum, Admin } = require('../models');
+const { Usuario, Nivel_Usuario } = require('../models');
 
 const getProfile = async (req, res) => {
   try {
     const usuario = await Usuario.findByPk(req.user.idUsuario, {
-      include: [
-        { model: Admin, as: 'admin' },
-        { model: UsuarioComum, as: 'comum' },
-      ],
+      include: [{ model: Nivel_Usuario, as: 'nivel', attributes: ['idNivel_Usuario', 'descricao'] }],
     });
 
     return res.json({ usuario });
   } catch (err) {
+    console.log(err)
     return res.status(500).json({ error: 'Erro ao buscar perfil' });
   }
 };

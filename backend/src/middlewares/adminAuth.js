@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { Usuario, Admin } = require('../models');
+const { Usuario } = require('../models');
 
 const adminAuthMiddleware = async (req, res, next) => {
   const header = req.headers.authorization;
@@ -17,15 +17,15 @@ const adminAuthMiddleware = async (req, res, next) => {
     if (!usuario) {
       return res.status(401).json({ error: 'Usuário não encontrado' });
     }
-
-    const admin = await Admin.findOne({ where: { idUsuario: usuario.idUsuario } });
-    if (!admin) {
+    console.log(usuario)
+    if (usuario.idNivel_Usuario != 3) {
       return res.status(403).json({ error: 'Acesso negado. Apenas administradores.' });
     }
 
     req.user = usuario;
     next();
   } catch (err) {
+    console.log(err)
     return res.status(401).json({ error: 'Token inválido' });
   }
 };

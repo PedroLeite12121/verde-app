@@ -6,6 +6,7 @@ const {
   listAreas,
   listONGs,
   listDenuncias,
+  listProjetos,
 } = require('../controllers/admin.controller');
 
 const router = express.Router();
@@ -17,5 +18,6 @@ router.get('/usuarios', listUsuarios);
 router.get('/areas', listAreas);
 router.get('/ongs', listONGs);
 router.get('/denuncias', listDenuncias);
+router.get('/projetos', listProjetos)
 
 module.exports = router;
