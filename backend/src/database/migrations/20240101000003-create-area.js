@@ -25,6 +25,23 @@ module.exports = {
         type: Sequelize.STRING(20),
         defaultValue: 'identificada',
       },
+      latitude: {
+        type: Sequelize.DOUBLE,
+        allowNull: true,
+      },
+      longitude: {
+        type: Sequelize.DOUBLE,
+        allowNull: true,
+      },
+      raio: {
+        type: Sequelize.DOUBLE,
+        allowNull: true,
+        defaultValue: 180
+      },
+      poligono: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      }
     });
   },
 

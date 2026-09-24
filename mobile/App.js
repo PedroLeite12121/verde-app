@@ -6,6 +6,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { AuthProvider } from './src/contexts/AuthContext';
 import AppNavigator from './src/navigation/AppNavigator';
 
+import {registerRootComponent} from 'expo'
+
 export default function App() {
   return (
     <AuthProvider>
@@ -16,3 +18,5 @@ export default function App() {
     </AuthProvider>
   );
 }
+
+registerRootComponent(App)

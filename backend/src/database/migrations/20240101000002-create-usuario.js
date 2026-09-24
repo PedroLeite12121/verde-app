@@ -9,6 +9,13 @@ module.exports = {
         autoIncrement: true,
         allowNull: false,
       },
+      idNivel_Usuario: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {model: 'tbl_Nivel_Usuario', key: 'idNivel_Usuario'},
+        onUpdate: 'CASCADE',
+        onDelete: 'RESTRICT',
+      },
       nome: {
         type: Sequelize.STRING(100),
         allowNull: false,
@@ -22,6 +29,14 @@ module.exports = {
         type: Sequelize.STRING(255),
         allowNull: false,
       },
+      cpf: {
+        type: Sequelize.CHAR(11), 
+        allowNull: true,
+      },
+      dataNasc: {
+        type: Sequelize.DATEONLY,
+        allowNull: true,
+      }
     });
   },
 

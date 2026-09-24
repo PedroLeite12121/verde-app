@@ -1,10 +1,10 @@
-const { Usuario, Admin, UsuarioComum, Area, Ongs, Projeto, Denuncias } = require('../models');
+const { Usuario, Area, Ongs, Projeto, Denuncias, Nivel_Usuario } = require('../models');
 
 const dashboardStats = async (req, res) => {
   try {
     const totalUsuarios = await Usuario.count();
-    const totalAdmins = await Admin.count();
-    const totalComuns = await UsuarioComum.count();
+    const totalAdmins = await Usuario.count({ where: {idNivel_Usuario: 3} });
+    const totalComuns = await Usuario.count({ where: {idNivel_Usuario: 1} });
     const totalAreas = await Area.count();
     const totalONGs = await Ongs.count();
     const totalProjetos = await Projeto.count();
@@ -31,10 +31,7 @@ const dashboardStats = async (req, res) => {
 const listUsuarios = async (req, res) => {
   try {
     const usuarios = await Usuario.findAll({
-      include: [
-        { model: Admin, as: 'admin' },
-        { model: UsuarioComum, as: 'comum' },
-      ],
+      include: [{ model: Nivel_Usuario, as: 'nivel', attributes: ['idNivel_Usuario', 'descricao'] }],
     });
 
     return res.json({ usuarios });
@@ -78,4 +75,18 @@ const listDenuncias = async (req, res) => {
   }
 };
 
-module.exports = { dashboardStats, listUsuarios, listAreas, listONGs, listDenuncias };
+const listProjetos = async (req, res) => {
+  try{ 
+    const projetos = await Projeto.findAll({
+      where: { idUsuario: req.user.idUsuario },
+      order: [['id_Projeto', 'DESC']],
+    });
+
+    return res.json(projetos)
+
+  } catch (err) {
+    return res.status(500).json({ error: 'Erro ao listar projetos' });
+  }
+}
+
+module.exports = { dashboardStats, listUsuarios, listAreas, listONGs, listDenuncias, listProjetos };

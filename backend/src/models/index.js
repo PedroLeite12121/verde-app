@@ -1,16 +1,13 @@
 const Usuario = require('./Usuario');
-const Admin = require('./Admin');
-const UsuarioComum = require('./UsuarioComum');
+
 const Area = require('./Area');
 const Ongs = require('./Ongs');
 const Projeto = require('./Projeto');
 const Denuncias = require('./Denuncias');
+const Nivel_Usuario = require('./Nivel_Usuario')
 
-Usuario.hasOne(Admin, { foreignKey: 'idUsuario', as: 'admin' });
-Admin.belongsTo(Usuario, { foreignKey: 'idUsuario', as: 'usuario' });
-
-Usuario.hasOne(UsuarioComum, { foreignKey: 'idUsuario', as: 'comum' });
-UsuarioComum.belongsTo(Usuario, { foreignKey: 'idUsuario', as: 'usuario' });
+Nivel_Usuario.hasMany(Usuario, { foreignKey: 'idNivel_Usuario', as: 'usuarios' });
+Usuario.belongsTo(Nivel_Usuario, { foreignKey: 'idNivel_Usuario', as: 'nivel' });
 
 Usuario.hasOne(Ongs, { foreignKey: 'idUsuario', as: 'ong' });
 Ongs.belongsTo(Usuario, { foreignKey: 'idUsuario', as: 'usuario' });
@@ -24,4 +21,4 @@ Denuncias.belongsTo(Usuario, { foreignKey: 'idUsuario', as: 'usuario' });
 Area.hasMany(Denuncias, { foreignKey: 'idArea', as: 'denuncias' });
 Denuncias.belongsTo(Area, { foreignKey: 'idArea', as: 'area' });
 
-module.exports = { Usuario, Admin, UsuarioComum, Area, Ongs, Projeto, Denuncias };
+module.exports = { Usuario, Area, Ongs, Projeto, Denuncias, Nivel_Usuario };

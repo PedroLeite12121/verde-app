@@ -150,10 +150,16 @@ async function loadDashboard() {
 }
 
 /* ---------- Usuários ---------- */
-function badgePerfil(admin, comum) {
-  if (admin) return '<span class="badge badge-admin">Admin</span>';
-  if (comum) return '<span class="badge badge-comum">Comum</span>';
-  return '<span class="badge badge-outros">-</span>';
+function badgePerfil(valor) {
+  const perfil = String(valor || '').toLowerCase();
+
+  if (perfil === 'admin') { return '<span class="badge badge-admin">Admin</span>'; }
+
+  if (perfil === 'ong') { return '<span class="badge badge-ong">ONG</span>'; }
+
+  if (perfil === 'comum') { return '<span class="badge badge-comum">Comum</span>'; }
+
+  return `<span class="badge">${escapeHtml(valor || 'Desconhecido')}</span>`;
 }
 
 async function loadUsuarios() {
@@ -166,13 +172,14 @@ async function loadUsuarios() {
       tbody.innerHTML = '<tr class="empty-row"><td colspan="4">Nenhum usuário encontrado.</td></tr>';
       return;
     }
+    console.log(usuarios)
     tbody.innerHTML = usuarios
       .map((u) => `
         <tr>
           <td>${u.idUsuario}</td>
           <td><div class="user-cell"><span class="avatar">${escapeHtml(initials(u.nome))}</span>${escapeHtml(u.nome)}</div></td>
           <td>${escapeHtml(u.email)}</td>
-          <td>${badgePerfil(u.admin, u.comum)}</td>
+          <td>${badgePerfil(u.nivel?.descricao)}</td>
         </tr>
       `)
       .join('');

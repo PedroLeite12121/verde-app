@@ -2,11 +2,20 @@ CREATE DATABASE IF NOT EXISTS dbDadosVerde;
 USE dbDadosVerde;
 
 -- Tabelas fortes
+CREATE TABLE tbl_Nivel_Usuario (
+  idNivel_Usuario INT PRIMARY KEY AUTO_INCREMENT,
+  descricao VARCHAR(30) NOT NULL
+);
+
 CREATE TABLE tbl_Usuario(
 	idUsuario INT PRIMARY KEY AUTO_INCREMENT,
+    idNivel_Usuario INT,
     nome VARCHAR (100),
     senha VARCHAR (255),
-    email VARCHAR (50)
+    email VARCHAR (50),
+    cpf CHAR (11),
+    dataNasc DATE,
+    FOREIGN KEY (idNivel_Usuario) REFERENCES tbl_Nivel_Usuario(idNivel_Usuario)
 );
 
 CREATE TABLE tbl_Area(
@@ -19,21 +28,6 @@ CREATE TABLE tbl_Area(
     longitude DOUBLE,
     raio DOUBLE DEFAULT 180,
     poligono TEXT
-);
-
--- Tabelas fracas
-CREATE TABLE tbl_Admin(
-	idAdmin INT PRIMARY KEY AUTO_INCREMENT,
-    idUsuario INT,
-    FOREIGN KEY (idUsuario) REFERENCES tbl_Usuario(idUsuario)
-);
-
-CREATE TABLE tbl_UsuarioComum(
-	idUsarioComum INT PRIMARY KEY AUTO_INCREMENT,
-    idUsuario INT,
-    cpf CHAR (11),
-    dataNasc DATE,
-    FOREIGN KEY (idUsuario) REFERENCES tbl_Usuario(idUsuario)
 );
 
 CREATE TABLE tbl_Ongs(

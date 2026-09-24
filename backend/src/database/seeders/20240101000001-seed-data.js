@@ -3,24 +3,22 @@ const bcrypt = require('bcryptjs');
 
 module.exports = {
   async up(queryInterface) {
+    const nivel_usuarios = [
+      { idNivel_Usuario: 1, descricao: 'comum' },
+      { idNivel_Usuario: 2, descricao: 'ong' },
+      { idNivel_Usuario: 3, descricao: 'admin' },
+    ];
+    await queryInterface.bulkInsert('tbl_Nivel_Usuario', nivel_usuarios);
+
     const senhaHash = await bcrypt.hash('123456', 10);
 
     const usuarios = [
-      { idUsuario: 1, nome: 'Administrador', email: 'admin@verde.com', senha: senhaHash },
-      { idUsuario: 2, nome: 'Maria Silva', email: 'maria@verde.com', senha: senhaHash },
-      { idUsuario: 3, nome: 'João Santos', email: 'joao@verde.com', senha: senhaHash },
+      { idUsuario: 1, idNivel_Usuario: 3, nome: 'Administrador', email: 'admin@verde.com', senha: senhaHash },
+      { idUsuario: 2, idNivel_Usuario: 2, nome: 'Maria Silva', email: 'maria@verde.com', senha: senhaHash },
+      { idUsuario: 3, idNivel_Usuario: 1, nome: 'João Santos', email: 'joao@verde.com', senha: senhaHash },
     ];
 
     await queryInterface.bulkInsert('tbl_Usuario', usuarios);
-
-    await queryInterface.bulkInsert('tbl_Admin', [
-      { idAdmin: 1, idUsuario: 1 },
-    ]);
-
-    await queryInterface.bulkInsert('tbl_UsuarioComum', [
-      { idUsarioComum: 1, idUsuario: 2, cpf: '12345678901', dataNasc: '1995-06-15' },
-      { idUsarioComum: 2, idUsuario: 3, cpf: '98765432100', dataNasc: '1990-03-22' },
-    ]);
 
     await queryInterface.bulkInsert('tbl_Ongs', [
       { idOngs: 1, idUsuario: 2, regiao: 'Cidade Tiradentes', cnpj: '12345678000190', telefone: '(11) 99999-0001', descricao: 'ONG de reflorestamento urbano na Cidade Tiradentes' },
