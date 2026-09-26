@@ -20,7 +20,7 @@ export type Area = {
 };
 
 export type Denuncia = {
-  idDenuncias: number;
+  idDenuncia: number;
   idUsuario: number;
   idArea: number;
   titulo: string;
@@ -33,21 +33,24 @@ export type Denuncia = {
 };
 
 export type Ong = {
-  idOngs: number;
+  idOng: number;
   idUsuario: number;
+  nome: string;
   regiao: string;
   cnpj: string;
   telefone: string;
   descricao: string;
+  statusOng: string;
   usuario?: Pick<Usuario, "idUsuario" | "nome" | "email">;
 };
 
 export type Projeto = {
-  id_Projeto: number;
+  idProjeto: number;
   idUsuario: number;
   objetivo: string;
   descricao: string;
   percentualConclusao: number;
+  ong?: Pick<Ong, "idOng" | "nome" | "regiao">
 };
 
 const API_BASE =
@@ -64,7 +67,7 @@ export function setToken(token: string): void {
   localStorage.setItem(TOKEN_KEY, token);
 }
 
-type StoredUser = { usuario: Usuario; tipo: "admin" | "comum" };
+type StoredUser = { usuario: Usuario; tipo: "admin" | "comum" | "ong" };
 
 export function getStoredUser(): StoredUser | null {
   try {

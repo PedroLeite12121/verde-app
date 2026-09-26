@@ -14,6 +14,11 @@ module.exports = {
         allowNull: false,
       },
     });
+    await queryInterface.sequelize.query(`
+      ALTER TABLE tbl_Nivel_Usuario
+      ADD CONSTRAINT chk_nivel_usuario
+      CHECK (descricao IN ('comum', 'admin', 'ong'))
+    `);
   },
 
   async down(queryInterface) {

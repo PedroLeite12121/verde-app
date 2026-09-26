@@ -9,6 +9,7 @@ import NGOsScreen from '../screens/ngos/NGOsScreen';
 import ProjetosScreen from '../screens/projetos/ProjetosScreen';
 import DenunciasScreen from '../screens/denuncias/DenunciasScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
+
 import { COLORS } from '../theme';
 
 const Tab = createBottomTabNavigator();

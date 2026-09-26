@@ -16,7 +16,7 @@ import {
   type Usuario,
 } from "./api";
 
-type Tipo = "admin" | "comum";
+type Tipo = "admin" | "comum" | "ong";
 
 type AuthContextValue = {
   user: Usuario | null;
@@ -50,11 +50,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
       try {
-        const { usuario } = await api.get<{ usuario: Usuario }>("/usuarios/profile");
+        const { usuario, tipo } = await api.get<{
+          usuario: Usuario;
+          tipo: Tipo;
+        }>("/usuarios/profile");
+
         if (!mounted) return;
+
         setUser(usuario);
-        setTipo(stored.tipo);
-        setStoredUser({ usuario, tipo: stored.tipo });
+        setTipo(tipo);
+        setStoredUser({ usuario, tipo });
       } catch {
         if (!mounted) return;
         clearAuth();

@@ -95,7 +95,7 @@ export function ReportsScreen() {
         descricao: description.trim() || undefined,
         foto: foto.trim() || undefined,
       });
-      setProtocol(res.denuncia.idDenuncias);
+      setProtocol(res.denuncia.idDenuncia);
       denuncias.reload();
       setTab("nova");
     } catch (e) {
@@ -262,7 +262,7 @@ export function ReportsScreen() {
                 </p>
                 <div className="flex flex-col gap-2">
                   {myReports.map((r) => (
-                    <Card key={r.idDenuncias} className="flex items-center justify-between gap-3 px-4 py-3.5">
+                    <Card key={r.idDenuncia} className="flex items-center justify-between gap-3 px-4 py-3.5">
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold text-foreground">{r.titulo}</p>
                         <p className="mt-1 flex items-center gap-1.5 truncate text-xs text-muted-foreground">

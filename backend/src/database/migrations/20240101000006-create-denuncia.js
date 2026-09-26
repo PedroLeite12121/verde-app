@@ -2,8 +2,8 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('tbl_Denuncias', {
-      idDenuncias: {
+    await queryInterface.createTable('tbl_Denuncia', {
+      idDenuncia: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
@@ -33,6 +33,7 @@ module.exports = {
       },
       statusDenuncia: {
         type: Sequelize.STRING(20),
+        allowNull: false,
         defaultValue: 'aberta',
       },
       descricao: {
@@ -44,9 +45,14 @@ module.exports = {
         allowNull: true,
       },
     });
+    await queryInterface.sequelize.query(`
+      ALTER TABLE tbl_Denuncia
+      ADD CONSTRAINT chk_status_denuncia
+      CHECK (statusDenuncia IN ('aberta', 'em tratamento', 'resolvido'))
+    `);
   },
 
   async down(queryInterface) {
-    await queryInterface.dropTable('tbl_Denuncias');
+    await queryInterface.dropTable('tbl_Denuncia');
   },
 };

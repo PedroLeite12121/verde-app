@@ -27,6 +27,15 @@ const Usuario = sequelize.define('Usuario', {
     type: DataTypes.STRING(255),
     allowNull: false,
   },
+  cpf: {
+    type: DataTypes.CHAR(11),
+    allowNull: true,
+    unique: true,
+  },
+  dataNasc: {
+    type: DataTypes.DATEONLY,
+    allowNull: true,
+  },
 }, {
   tableName: 'tbl_Usuario',
   timestamps: false,

@@ -174,7 +174,7 @@ export function HomeScreen() {
                 <div>
                   {abertas.slice(0, 4).map((d, i) => (
                     <Link
-                      key={d.idDenuncias}
+                      key={d.idDenuncia}
                       to="/mapa"
                       className={`flex items-center gap-3 px-4 py-3 ${
                         i > 0 ? "border-t border-black/[0.05]" : ""

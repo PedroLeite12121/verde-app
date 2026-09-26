@@ -7,6 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 import LoginScreen from '../screens/auth/LoginScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
 import MainTabNavigator from './MainTabNavigator';
+import NGOsCreateScreen from '../screens/ngos/NGOsCreateScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -30,7 +31,14 @@ export default function AppNavigator() {
           <Stack.Screen name="Register" component={RegisterScreen} />
         </>
       ) : (
-        <Stack.Screen name="Main" component={MainTabNavigator} />
+        <>
+          <Stack.Screen name="Main" component={MainTabNavigator} />
+          <Stack.Screen
+            name="CreateONGsScreen"
+            component={NGOsCreateScreen}
+          />
+        </>
+
       )}
     </Stack.Navigator>
   );

@@ -238,7 +238,7 @@ async function loadOngs() {
     tbody.innerHTML = ongs
       .map((o) => `
         <tr>
-          <td>${o.idOngs}</td>
+          <td>${o.idOng}</td>
           <td>${escapeHtml(o.regiao)}</td>
           <td>${escapeHtml(o.cnpj)}</td>
           <td>${escapeHtml(o.telefone)}</td>
@@ -274,7 +274,7 @@ async function loadDenuncias() {
     tbody.innerHTML = denuncias
       .map((d) => `
         <tr>
-          <td>${d.idDenuncias}</td>
+          <td>${d.idDenuncia}</td>
           <td>${escapeHtml(d.titulo)}</td>
           <td>${badgeDenuncia(d.statusDenuncia)}</td>
           <td>${d.area ? areaLabel(d.area) : '-'}</td>

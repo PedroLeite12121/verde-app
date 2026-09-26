@@ -1,5 +1,5 @@
 const express = require('express');
-const { listDenuncias, getDenuncia, createDenuncia, updateDenuncia } = require('../controllers/denuncias.controller');
+const { listDenuncias, getDenuncia, createDenuncia, updateDenuncia } = require('../controllers/denuncia.controller');
 const { authMiddleware } = require('../middlewares/auth');
 
 const router = express.Router();

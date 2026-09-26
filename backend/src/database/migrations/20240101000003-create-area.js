@@ -23,6 +23,7 @@ module.exports = {
       },
       statusArea: {
         type: Sequelize.STRING(20),
+        allowNull: false,
         defaultValue: 'identificada',
       },
       latitude: {
@@ -43,6 +44,11 @@ module.exports = {
         allowNull: true,
       }
     });
+    await queryInterface.sequelize.query(`
+      ALTER TABLE tbl_Area
+      ADD CONSTRAINT chk_status_area
+      CHECK (statusArea IN ('identificada', 'em tratamento', 'reflorestada'))
+    `);
   },
 
   async down(queryInterface) {

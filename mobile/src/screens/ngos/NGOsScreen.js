@@ -15,7 +15,7 @@ export default function NGOsScreen() {
   const load = useCallback(async () => {
     try {
       setError(null);
-      const response = await api.get('/ongs');
+      const response = await api.get('/ongs?statusOng=aprovada');
       setONGs(response.data.ongs ?? []);
     } catch (err) {
       setError(err.response?.data?.error || 'Sem conexão com o servidor.');
@@ -33,7 +33,7 @@ export default function NGOsScreen() {
         <Ionicons name="people" size={22} color={COLORS.primary} />
       </View>
       <View style={{ flex: 1 }}>
-        <Text style={styles.cardTitle}>{item.usuario?.nome || 'ONG parceira'}</Text>
+        <Text style={styles.cardTitle}>{item.nome || 'ONG parceira'}</Text>
         <Text style={styles.cardDescription} numberOfLines={2}>{item.descricao || 'Reflorestamento urbano'}</Text>
         <View style={styles.info}>
           <Text style={styles.infoText}>{item.regiao || 'Cidade Tiradentes'}</Text>
@@ -53,7 +53,7 @@ export default function NGOsScreen() {
       ) : (
         <FlatList
           data={ongs}
-          keyExtractor={(item) => String(item.idOngs)}
+          keyExtractor={(item) => String(item.idOng)}
           renderItem={renderItem}
           contentContainerStyle={styles.list}
           refreshControl={

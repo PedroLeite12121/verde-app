@@ -5,7 +5,7 @@ const userRoutes = require('./user.routes');
 const areaRoutes = require('./area.routes');
 const ngoRoutes = require('./ngo.routes');
 const projetoRoutes = require('./projeto.routes');
-const denunciasRoutes = require('./denuncias.routes');
+const denunciasRoutes = require('./denuncia.routes');
 const adminRoutes = require('./admin.routes');
 
 const router = express.Router();
