@@ -5,8 +5,10 @@ const getProfile = async (req, res) => {
     const usuario = await Usuario.findByPk(req.user.idUsuario, {
       include: [{ model: Nivel_Usuario, as: 'nivel', attributes: ['idNivel_Usuario', 'descricao'] }],
     });
+    
+    const tipo = usuario.nivel.descricao
 
-    return res.json({ usuario });
+    return res.json({ usuario, tipo });
   } catch (err) {
     console.log(err)
     return res.status(500).json({ error: 'Erro ao buscar perfil' });
