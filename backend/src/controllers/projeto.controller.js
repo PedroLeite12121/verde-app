@@ -1,10 +1,10 @@
-const { Projeto, Usuario } = require('../models');
+const { Projeto, Ong } = require('../models');
 
 const listProjetos = async (req, res) => {
   try {
     const projetos = await Projeto.findAll({
-      where: { idUsuario: req.user.idUsuario },
-      order: [['id_Projeto', 'DESC']],
+      include: [{ model: Ong, as: 'ong', attributes: ['idOng', 'nome', 'regiao'] }],
+      order: [['idProjeto', 'DESC']],
     });
 
     return res.json({ projetos });
@@ -15,7 +15,9 @@ const listProjetos = async (req, res) => {
 
 const getProjeto = async (req, res) => {
   try {
-    const projeto = await Projeto.findByPk(req.params.id);
+    const projeto = await Projeto.findByPk(req.params.id, {
+      include: [{ model: Ong, as: 'ong', attributes: ['idOng', 'nome', 'regiao'] }],
+    });
 
     if (!projeto) {
       return res.status(404).json({ error: 'Projeto não encontrado' });
@@ -29,14 +31,27 @@ const getProjeto = async (req, res) => {
 
 const createProjeto = async (req, res) => {
   try {
-    const { objetivo, descricao } = req.body;
+    
 
-    const projeto = await Projeto.create({
-      idUsuario: req.user.idUsuario,
-      objetivo,
-      descricao,
-      percentualConclusao: 0,
+    const { objetivo, descricao } = req.body;
+    const percentualConclusao = 0
+
+    const ong = await Ong.findOne({
+      where: {
+        idUsuario: req.user.idUsuario,
+        statusOng: 'aprovada',
+      },
     });
+
+    if (!ong) {
+      return res.status(403).json({
+        error: 'É necessário ter uma ONG aprovada para criar um projeto.',
+      });
+    }
+
+    const idOng = ong.idOng
+
+    const projeto = await Projeto.create({ idOng, objetivo, descricao, percentualConclusao });
 
     return res.status(201).json({ projeto });
   } catch (err) {
@@ -52,11 +67,24 @@ const updateProjeto = async (req, res) => {
       return res.status(404).json({ error: 'Projeto não encontrado' });
     }
 
-    if (projeto.idUsuario !== req.user.idUsuario) {
+    const ong = await Ong.findOne({
+      where: {
+        idUsuario: req.user.idUsuario,
+        statusOng: 'aprovada',
+      },
+    });
+
+    if (!ong || projeto.idOng !== ong.idOng) {
       return res.status(403).json({ error: 'Sem permissão' });
     }
 
-    await projeto.update(req.body);
+    const { objetivo, descricao, percentualConclusao } = req.body;
+
+    await projeto.update({
+      ...(objetivo !== undefined && { objetivo }),
+      ...(descricao !== undefined && { descricao }),
+      ...(percentualConclusao !== undefined && { percentualConclusao }),
+    });
 
     return res.json({ projeto });
   } catch (err) {
@@ -72,7 +100,14 @@ const deleteProjeto = async (req, res) => {
       return res.status(404).json({ error: 'Projeto não encontrado' });
     }
 
-    if (projeto.idUsuario !== req.user.idUsuario) {
+    const ong = await Ong.findOne({
+      where: {
+        idUsuario: req.user.idUsuario,
+        statusOng: 'aprovada',
+      },
+    });
+
+    if (!ong || projeto.idOng !== ong.idOng) {
       return res.status(403).json({ error: 'Sem permissão' });
     }
 

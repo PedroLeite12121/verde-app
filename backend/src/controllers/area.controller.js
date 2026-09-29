@@ -1,4 +1,4 @@
-const { Area, Denuncias, Usuario } = require('../models');
+const { Area, Denuncia, Usuario } = require('../models');
 const { geocodeAddress } = require('../services/geocode');
 
 function parseRaio(value) {

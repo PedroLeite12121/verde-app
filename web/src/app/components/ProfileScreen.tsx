@@ -3,11 +3,13 @@ import { Link, useNavigate } from "react-router";
 import {
   AlertTriangle,
   BookOpen,
+  ChevronRight,
   Info,
   Lock,
   LogOut,
   MapPin,
   Shield,
+  Users,
 } from "lucide-react";
 import { api, type Area, type Denuncia, type Projeto } from "../../lib/api";
 import { useAuth } from "../../lib/auth";
@@ -101,7 +103,7 @@ export function ProfileScreen() {
         ) : (
           <div className="flex flex-col gap-2">
             {mine.map((d) => (
-              <Card key={d.idDenuncias} className="flex items-center justify-between gap-3 px-4 py-3.5">
+              <Card key={d.idDenuncia} className="flex items-center justify-between gap-3 px-4 py-3.5">
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-foreground">{d.titulo}</p>
                   <p className="mt-1 flex items-center gap-1.5 truncate text-xs text-muted-foreground">
@@ -115,6 +117,29 @@ export function ProfileScreen() {
           </div>
         )}
       </div>
+      {tipo === "comum" && (
+        <div className="px-5 pt-5">
+          <button
+            onClick={() => navigate("/ongs/create")}
+            className="flex w-full items-center gap-3 rounded-2xl border border-primary/20 bg-primary/[0.08] px-4 py-3.5 text-left transition-colors hover:bg-primary/[0.14]"
+          >
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-content">
+              <Users size={18} strokeWidth={2} />
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-foreground">
+                Cadastrar sua ONG
+              </p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Envie sua organização para análise
+              </p>
+            </div>
+
+            <ChevronRight size={18} className="text-primary" />
+          </button>
+        </div>
+      )}
 
       {/* Configure */}
       <div className="px-5 pt-5">

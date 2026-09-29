@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { Usuario } = require('../models');
+const { Usuario, Nivel_Usuario } = require('../models');
 
 const adminAuthMiddleware = async (req, res, next) => {
   const header = req.headers.authorization;
@@ -12,13 +12,19 @@ const adminAuthMiddleware = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const usuario = await Usuario.findByPk(decoded.id);
+    const usuario = await Usuario.findByPk(decoded.id, {
+      include: [{
+        model: Nivel_Usuario,
+        as: 'nivel',
+        attributes: ['idNivel_Usuario', 'descricao'],
+      }],
+    });
 
     if (!usuario) {
       return res.status(401).json({ error: 'Usuário não encontrado' });
     }
-    console.log(usuario)
-    if (usuario.idNivel_Usuario != 3) {
+
+    if (usuario.nivel.descricao != 'admin') {
       return res.status(403).json({ error: 'Acesso negado. Apenas administradores.' });
     }
 

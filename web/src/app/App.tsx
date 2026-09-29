@@ -14,6 +14,7 @@ import { HomeScreen } from "./components/HomeScreen";
 import { MapScreen } from "./components/MapScreen";
 import { ReportsScreen } from "./components/ReportsScreen";
 import { OngsScreen } from "./components/OngsScreen";
+import { OngsCreateScreen } from "./components/OngsCreateScreen"
 import { EducationScreen } from "./components/EducationScreen";
 import { ProfileScreen } from "./components/ProfileScreen";
 import { AdminScreen } from "./components/AdminScreen";
@@ -183,6 +184,7 @@ export default function App() {
               <Route path="/ongs" element={<OngsScreen />} />
               <Route path="/educacao" element={<EducationScreen />} />
               <Route path="/perfil" element={<ProfileScreen />} />
+              <Route path="/ongs/create" element={<OngsCreateScreen />} />
             </Route>
           </Route>
 

@@ -3,16 +3,16 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('tbl_Projeto', {
-      id_Projeto: {
+      idProjeto: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
         allowNull: false,
       },
-      idUsuario: {
+      idOng: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: { model: 'tbl_Usuario', key: 'idUsuario' },
+        references: { model: 'tbl_Ong', key: 'idOng' },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
       },

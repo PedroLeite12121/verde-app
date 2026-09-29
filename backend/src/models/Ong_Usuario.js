@@ -1,23 +1,25 @@
 const { DataTypes } = require('sequelize');
+
 const sequelize = require('../config/sequelize');
 
-const Nivel_Usuario = sequelize.define('Nivel_Usuario', {
-  idNivel_Usuario: {
+const Ong_Usuario = sequelize.define('Ong_Usuario', {
+  idOng_Usuario: {
     type: DataTypes.INTEGER,
     allowNull: false,
     primaryKey: true,
     autoIncrement: true,
   },
-  descricao: {
-    type: DataTypes.STRING(30),
+  idOng: {
+    type: DataTypes.INTEGER,
     allowNull: false,
-    validate: {
-      isIn: [['comum', 'admin', 'ong']],
-    },
+  },
+  idUsuario: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
   },
 }, {
-  tableName: 'tbl_Nivel_Usuario', 
+  tableName: 'tbl_Ong_Usuario',
   timestamps: false,
 });
 
-module.exports = Nivel_Usuario;
+module.exports = Ong_Usuario;

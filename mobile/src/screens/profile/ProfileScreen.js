@@ -1,13 +1,15 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert, ScrollView, RefreshControl } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert, ScrollView, RefreshControl, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../api';
 import { COLORS } from '../../theme';
 import { API_BASE_URL } from '../../api';
 
 export default function ProfileScreen() {
+  const navigation = useNavigation();
+  
   const { user, tipo, signOut } = useAuth();
   const [counts, setCounts] = useState({ denuncias: 0, projetos: 0 });
   const [refreshing, setRefreshing] = useState(false);
@@ -27,9 +29,16 @@ export default function ProfileScreen() {
   useFocusEffect(useCallback(() => { load(); }, [load]));
 
   const handleLogout = () => {
+    if (Platform.OS === 'web') {
+      const confirmed = window.confirm('Deseja sair da conta?');
+      if (confirmed) {signOut();}
+
+      return;
+    }
+
     Alert.alert('Sair', 'Deseja sair da conta?', [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Sair', style: 'destructive', onPress: signOut },
+      {text: 'Cancelar', style: 'cancel',},
+      {text: 'Sair', style: 'destructive', onPress: signOut},
     ]);
   };
 
@@ -72,8 +81,31 @@ export default function ProfileScreen() {
       </View>
 
       <View style={styles.menu}>
+        
+        {tipo === 'comum' && (
+        <TouchableOpacity
+          style={styles.ongCta}
+          onPress={() => navigation.navigate('CreateONGsScreen')}
+          activeOpacity={0.85}
+        >
+          <View style={styles.ongIcon}>
+            <Ionicons name="people-outline" size={22} color={COLORS.primary} />
+          </View>
+
+          <View style={styles.ongContent}>
+            <Text style={styles.ongTitle}>Cadastrar sua ONG</Text>
+            <Text style={styles.ongSubtitle}>
+              Envie sua organização para análise
+            </Text>
+          </View>
+
+          <Ionicons name="chevron-forward" size={20} color={COLORS.primary} />
+        </TouchableOpacity>
+      )}
+        
         <MenuItem icon="server-outline" label={`Servidor: ${API_BASE_URL}`} />
         <MenuItem icon="leaf-outline" label="Cidade Tiradentes · São Paulo" />
+        
         <TouchableOpacity style={styles.logout} onPress={handleLogout} activeOpacity={0.85}>
           <Ionicons name="log-out-outline" size={22} color={COLORS.error} />
           <Text style={styles.logoutText}>Sair da conta</Text>
@@ -128,4 +160,37 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff', borderRadius: 12, padding: 16, marginTop: 4,
   },
   logoutText: { fontSize: 16, color: COLORS.error, fontWeight: '600' },
+  ongCta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E3F2E9',
+    borderWidth: 1,
+    borderColor: '#B7DEC4',
+    borderRadius: 14,
+    padding: 16,
+    marginTop: 4,
+    marginBottom: 4,
+  },
+  ongIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+  },
+  ongContent: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  ongTitle: {
+    color: COLORS.primary,
+    fontSize: 15,
+    fontWeight: 'bold',
+  },
+  ongSubtitle: {
+    marginTop: 3,
+    color: COLORS.muted,
+    fontSize: 12,
+  },
 });

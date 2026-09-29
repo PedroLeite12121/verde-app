@@ -2,12 +2,12 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/sequelize');
 
 const Projeto = sequelize.define('Projeto', {
-  id_Projeto: {
+  idProjeto: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
   },
-  idUsuario: {
+  idOng: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
@@ -17,7 +17,7 @@ const Projeto = sequelize.define('Projeto', {
   },
   descricao: {
     type: DataTypes.STRING(100),
-    allowNull: true,
+    allowNull: false,
   },
   percentualConclusao: {
     type: DataTypes.FLOAT,

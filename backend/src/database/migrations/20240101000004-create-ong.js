@@ -2,8 +2,8 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('tbl_Ongs', {
-      idOngs: {
+    await queryInterface.createTable('tbl_Ong', {
+      idOng: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
@@ -15,6 +15,10 @@ module.exports = {
         references: { model: 'tbl_Usuario', key: 'idUsuario' },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
+      },
+      nome: {
+        type: Sequelize.STRING(50),
+        allowNull: false,
       },
       regiao: {
         type: Sequelize.STRING(30),
@@ -32,10 +36,20 @@ module.exports = {
         type: Sequelize.STRING(100),
         allowNull: true,
       },
+      statusOng: {
+        type: Sequelize.STRING(50),
+        defaultValue: 'pendente',
+        allowNull: true,        
+      }
     });
+    await queryInterface.sequelize.query(`
+      ALTER TABLE tbl_Ong
+      ADD CONSTRAINT chk_status_ong
+      CHECK (statusOng IN ('pendente', 'aprovada'))
+    `);
   },
 
   async down(queryInterface) {
-    await queryInterface.dropTable('tbl_Ongs');
+    await queryInterface.dropTable('tbl_Ong');
   },
 };

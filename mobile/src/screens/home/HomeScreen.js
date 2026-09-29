@@ -107,7 +107,7 @@ export default function HomeScreen({ navigation }) {
           <Text style={styles.empty}>Nenhuma denúncia ainda</Text>
         ) : (
           data.recentes.map((d) => (
-            <View key={d.idDenuncias} style={styles.row}>
+            <View key={d.idDenuncia} style={styles.row}>
               <View style={[styles.dot, { backgroundColor: d.statusDenuncia === 'resolvido' ? COLORS.success : COLORS.error }]} />
               <View style={{ flex: 1 }}>
                 <Text style={styles.rowTitle} numberOfLines={1}>{d.titulo}</Text>

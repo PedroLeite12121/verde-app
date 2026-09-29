@@ -1,8 +1,8 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/sequelize');
 
-const Denuncias = sequelize.define('Denuncias', {
-  idDenuncias: {
+const Denuncia = sequelize.define('Denuncia', {
+  idDenuncia: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
@@ -25,19 +25,23 @@ const Denuncias = sequelize.define('Denuncias', {
   },
   statusDenuncia: {
     type: DataTypes.STRING(20),
+    allowNull: false,
     defaultValue: 'aberta',
+    validate: {
+      isIn: [['aberta', 'em tratamento', 'resolvido']],
+    },
   },
   descricao: {
     type: DataTypes.STRING(100),
-    allowNull: true,
+    allowNull: false,
   },
   foto: {
     type: DataTypes.STRING(50),
     allowNull: true,
   },
 }, {
-  tableName: 'tbl_Denuncias',
+  tableName: 'tbl_Denuncia',
   timestamps: false,
 });
 
-module.exports = Denuncias;
+module.exports = Denuncia;

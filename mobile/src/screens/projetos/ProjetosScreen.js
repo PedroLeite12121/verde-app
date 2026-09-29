@@ -8,6 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import api from '../../api';
 import { AppHeader, LoadingView, ErrorView, EmptyView } from '../../components/ui';
 import { COLORS } from '../../theme';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function ProjetosScreen() {
   const [projetos, setProjetos] = useState([]);
@@ -20,6 +21,8 @@ export default function ProjetosScreen() {
   const [descricao, setDescricao] = useState('');
   const [sending, setSending] = useState(false);
 
+  const { tipo } = useAuth();
+  
   const load = useCallback(async () => {
     try {
       setError(null);
@@ -59,7 +62,17 @@ export default function ProjetosScreen() {
     return (
       <View style={styles.card}>
         <Text style={styles.cardTitle}>{item.objetivo}</Text>
-        {item.descricao ? <Text style={styles.cardDescription} numberOfLines={2}>{item.descricao}</Text> : null}
+
+        {item.ong?.nome ? (
+          <Text style={styles.ongName}>{item.ong.nome}</Text>
+        ) : null}
+
+        {item.descricao ? (
+          <Text style={styles.cardDescription} numberOfLines={2}>
+            {item.descricao}
+          </Text>
+        ) : null}
+
         <View style={styles.progressContainer}>
           <View style={styles.progressBar}>
             <View style={[styles.progressFill, { width: `${pct}%` }]} />
@@ -76,9 +89,11 @@ export default function ProjetosScreen() {
         title="Projetos"
         subtitle={`${projetos.length} em acompanhamento`}
         right={
-          <TouchableOpacity style={styles.fab} onPress={() => setModal(true)}>
-            <Ionicons name="add" size={24} color="#fff" />
-          </TouchableOpacity>
+          tipo === 'ong' ? (
+            <TouchableOpacity style={styles.fab} onPress={() => setModal(true)}>
+              <Ionicons name="add" size={24} color="#fff" />
+            </TouchableOpacity>
+          ) : null
         }
       />
       {loading ? (
@@ -88,7 +103,7 @@ export default function ProjetosScreen() {
       ) : (
         <FlatList
           data={projetos}
-          keyExtractor={(item) => String(item.id_Projeto)}
+          keyExtractor={(item) => String(item.idProjeto)}
           renderItem={renderItem}
           contentContainerStyle={styles.list}
           refreshControl={
@@ -179,4 +194,10 @@ const styles = StyleSheet.create({
   send: { backgroundColor: COLORS.primary, borderRadius: 12, padding: 16, alignItems: 'center', marginTop: 20 },
   sendDisabled: { opacity: 0.7 },
   sendText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  ongName: {
+    marginTop: 4,
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.primary,
+  },
 });

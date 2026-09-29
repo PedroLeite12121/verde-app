@@ -227,9 +227,9 @@ export function MapScreen() {
           (d.area?.rua || "").toLowerCase().includes(q),
       )
       .map((d) => ({
-        key: `d-${d.idDenuncias}`,
+        key: `d-${d.idDenuncia}`,
         kind: "denuncia" as const,
-        id: d.idDenuncias,
+        id: d.idDenuncia,
         title: d.titulo,
         sub: `${d.area?.rua || d.area?.bairro || "Cidade Tiradentes"} · ${d.dataDenuncia}`,
         status: d.statusDenuncia,

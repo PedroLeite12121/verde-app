@@ -11,6 +11,7 @@ module.exports = {
       },
       idNivel_Usuario: {
         type: Sequelize.INTEGER,
+        defaultValue: 1,
         allowNull: false,
         references: {model: 'tbl_Nivel_Usuario', key: 'idNivel_Usuario'},
         onUpdate: 'CASCADE',

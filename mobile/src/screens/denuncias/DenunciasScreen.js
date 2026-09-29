@@ -140,7 +140,7 @@ export default function DenunciasScreen({ navigation }) {
       ) : (
         <FlatList
           data={list}
-          keyExtractor={(item) => String(item.idDenuncias)}
+          keyExtractor={(item) => String(item.idDenuncia)}
           renderItem={renderItem}
           contentContainerStyle={styles.list}
           refreshControl={

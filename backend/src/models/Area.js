@@ -21,7 +21,11 @@ const Area = sequelize.define('Area', {
   },
   statusArea: {
     type: DataTypes.STRING(20),
+    allowNull: false,
     defaultValue: 'identificada',
+    validate: {
+      isIn: [['identificada', 'em tratamento', 'reflorestada']],
+    },
   },
   latitude: {
     type: DataTypes.DOUBLE,

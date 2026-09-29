@@ -17,11 +17,17 @@ export function AuthProvider({ children }) {
     try {
       const storedUser = await AsyncStorage.getItem('@verde:user');
       const storedToken = await AsyncStorage.getItem('@verde:token');
-      const storedTipo = await AsyncStorage.getItem('@verde:tipo');
-
+      
       if (storedUser && storedToken) {
-        setUser(JSON.parse(storedUser));
-        setTipo(storedTipo || 'comum');
+        const response = await api.get('/usuarios/profile');
+        const { usuario } = response.data;
+        const tipoAtual = usuario.nivel?.descricao || 'comum';
+
+        setUser(usuario);
+        setTipo(tipoAtual);
+
+        await AsyncStorage.setItem('@verde:user', JSON.stringify(usuario));
+        await AsyncStorage.setItem('@verde:tipo', tipoAtual);
       }
     } catch {
       // Se o storage falhar, segue sem sessão em vez de travar em tela branca

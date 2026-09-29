@@ -1,4 +1,4 @@
-const { Denuncias, Area, Usuario } = require('../models');
+const { Denuncia, Area, Usuario } = require('../models');
 
 const listDenuncias = async (req, res) => {
   try {
@@ -8,13 +8,13 @@ const listDenuncias = async (req, res) => {
     if (idArea) where.idArea = idArea;
     if (statusDenuncia) where.statusDenuncia = statusDenuncia;
 
-    const denuncias = await Denuncias.findAll({
+    const denuncias = await Denuncia.findAll({
       where,
       include: [
         { model: Usuario, as: 'usuario', attributes: ['idUsuario', 'nome'] },
         { model: Area, as: 'area', attributes: ['idArea', 'cidade', 'bairro', 'rua', 'latitude', 'longitude', 'raio', 'poligono', 'statusArea'] },
       ],
-      order: [['idDenuncias', 'DESC']],
+      order: [['idDenuncia', 'DESC']],
     });
 
     return res.json({ denuncias });
@@ -25,7 +25,7 @@ const listDenuncias = async (req, res) => {
 
 const getDenuncia = async (req, res) => {
   try {
-    const denuncia = await Denuncias.findByPk(req.params.id, {
+    const denuncia = await Denuncia.findByPk(req.params.id, {
       include: [
         { model: Usuario, as: 'usuario', attributes: ['idUsuario', 'nome'] },
         { model: Area, as: 'area' },
@@ -45,21 +45,16 @@ const getDenuncia = async (req, res) => {
 const createDenuncia = async (req, res) => {
   try {
     const { idArea, titulo, descricao, foto } = req.body;
+    const idUsuario = req.user.idUsuario
+    const dataDenuncia = new Date()
+    const statusDenuncia = 'aberta'
 
     const area = await Area.findByPk(idArea);
     if (!area) {
       return res.status(404).json({ error: 'Área não encontrada' });
     }
 
-    const denuncia = await Denuncias.create({
-      idUsuario: req.user.idUsuario,
-      idArea,
-      titulo,
-      dataDenuncia: new Date(),
-      statusDenuncia: 'aberta',
-      descricao,
-      foto,
-    });
+    const denuncia = await Denuncia.create({ idUsuario, idArea, titulo, dataDenuncia, statusDenuncia, descricao, foto });
 
     return res.status(201).json({ denuncia });
   } catch (err) {
@@ -69,7 +64,7 @@ const createDenuncia = async (req, res) => {
 
 const updateDenuncia = async (req, res) => {
   try {
-    const denuncia = await Denuncias.findByPk(req.params.id);
+    const denuncia = await Denuncia.findByPk(req.params.id);
 
     if (!denuncia) {
       return res.status(404).json({ error: 'Denúncia não encontrada' });
