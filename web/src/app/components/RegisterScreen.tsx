@@ -23,7 +23,7 @@ export function RegisterScreen() {
         nome: form.nome.trim(),
         email: form.email.trim(),
         senha: form.senha,
-        cpf: form.cpf.trim() || undefined,
+        cpf: form.cpf.replace(/\D/g, "") || undefined,
         dataNasc: form.dataNasc || undefined,
       });
       navigate("/", { replace: true });
@@ -32,7 +32,22 @@ export function RegisterScreen() {
     } finally {
       setBusy(false);
     }
-  }
+  } 
+  const formatCpf = (value: string) => {
+    const digits = value.replace(/\D/g, "").slice(0, 11);
+
+    if (digits.length > 9) {
+      return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
+    }
+    if (digits.length > 6) {
+      return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
+    }
+    if (digits.length > 3) {
+      return `${digits.slice(0, 3)}.${digits.slice(3)}`;
+    }
+    return digits;
+  };
+
 
   return (
     <div className="flex h-full w-full items-center justify-center md:p-6">
@@ -109,7 +124,10 @@ export function RegisterScreen() {
                   <input
                     inputMode="numeric"
                     value={form.cpf}
-                    onChange={set("cpf")}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, cpf: formatCpf(e.target.value) }))
+                    }
+                    maxLength={14}
                     placeholder="Opcional"
                     className="input w-full border-black/10 bg-base-200/60 text-sm text-foreground focus-within:border-primary"
                   />
