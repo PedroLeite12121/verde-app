@@ -53,8 +53,8 @@ const register = async (req, res) => {
   try {
     const { nome, email, senha, cpf, dataNasc } = req.body;
     const idNivel_Usuario = 1
-    const cpfDigits = cpf ? String(cpf).replace(/\D/g, '') : '';
-    const birthDate = dataNasc ? String(dataNasc).trim() : '';
+    const cpfDigits = cpf ? String(cpf).replace(/\D/g, '') : null;
+    const birthDate = dataNasc ? String(dataNasc).trim() : null;
 
     if (cpfDigits && !isValidCPF(cpfDigits)) {
       return res.status(400).json({ error: 'CPF inválido.' });
