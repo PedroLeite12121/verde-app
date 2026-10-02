@@ -6,7 +6,9 @@ const getProfile = async (req, res) => {
       include: [{ model: Nivel_Usuario, as: 'nivel', attributes: ['idNivel_Usuario', 'descricao'] }],
     });
 
-    return res.json({ usuario });
+    const tipo = usuario.nivel.descricao
+
+    return res.json({ usuario, tipo });
   } catch (err) {
     console.log(err)
     return res.status(500).json({ error: 'Erro ao buscar perfil' });
