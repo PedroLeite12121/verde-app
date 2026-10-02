@@ -2,6 +2,10 @@
 
 App de mapeamento de áreas não verdes e conexão entre pessoas e ONGs de reflorestamento.
 
+# Link
+
+https://verde-app-main.onrender.com/
+
 ## Stack
 
 - **Mobile:** React Native (Expo)
