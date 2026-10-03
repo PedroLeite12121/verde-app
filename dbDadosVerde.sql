@@ -1,6 +1,3 @@
-CREATE DATABASE IF NOT EXISTS dbDadosVerde;
-USE dbDadosVerde;
-
 CREATE TABLE tbl_Nivel_Usuario (
   idNivel_Usuario INT PRIMARY KEY AUTO_INCREMENT,
   descricao VARCHAR(30) NOT NULL UNIQUE,
@@ -11,10 +8,10 @@ CREATE TABLE tbl_Nivel_Usuario (
 
 CREATE TABLE tbl_Usuario (
   idUsuario INT PRIMARY KEY AUTO_INCREMENT,
-  idNivel_Usuario INT NOT NULL DEFAULT 1,
+  idNivel_Usuario INT NOT NULL,
   nome VARCHAR(100) NOT NULL,
-  senha VARCHAR(255) NOT NULL,
   email VARCHAR(50) NOT NULL UNIQUE,
+  senha VARCHAR(255) NOT NULL,
   cpf CHAR(11) UNIQUE,
   dataNasc DATE,
 
@@ -26,7 +23,7 @@ CREATE TABLE tbl_Usuario (
 CREATE TABLE tbl_Area (
   idArea INT PRIMARY KEY AUTO_INCREMENT,
   cidade VARCHAR(30) NOT NULL,
-  bairro VARCHAR(30) NOT NULL,
+  bairro VARCHAR(30),
   rua VARCHAR(35) NOT NULL,
   statusArea VARCHAR(20) NOT NULL DEFAULT 'identificada',
   latitude DOUBLE,
@@ -79,7 +76,7 @@ CREATE TABLE tbl_Denuncia (
   dataDenuncia DATE NOT NULL,
   statusDenuncia VARCHAR(20) NOT NULL DEFAULT 'aberta',
   descricao VARCHAR(100) NOT NULL,
-  foto VARCHAR(50),
+  foto VARCHAR(255),
 
   CONSTRAINT fk_denuncia_usuario
     FOREIGN KEY (idUsuario)
@@ -90,7 +87,7 @@ CREATE TABLE tbl_Denuncia (
     REFERENCES tbl_Area(idArea),
 
   CONSTRAINT chk_status_denuncia
-    CHECK (statusDenuncia IN ('aberta', 'em tratamento', 'resolvido'))
+    CHECK (statusDenuncia IN ('aberta', 'em tratamento', 'resolvida'))
 );
 
 CREATE TABLE tbl_Ong_Usuario (

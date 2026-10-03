@@ -78,4 +78,20 @@ const updateDenuncia = async (req, res) => {
   }
 };
 
-module.exports = { listDenuncias, getDenuncia, createDenuncia, updateDenuncia };
+const deleteDenuncia = async (req, res) => {
+  try {
+    const denuncia = await Denuncia.findByPk(req.params.id);
+
+    if (!denuncia) {
+      return res.status(404).json({ error: 'Denúncia não encontrada' });
+    }
+
+    await denuncia.destroy();
+
+    return res.json({ message: 'Denúncia removida com sucesso' });
+  } catch (err) {
+    return res.status(500).json({ error: 'Erro ao remover denúncia' });
+  }
+};
+
+module.exports = { listDenuncias, getDenuncia, createDenuncia, updateDenuncia, deleteDenuncia };

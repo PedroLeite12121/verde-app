@@ -22,6 +22,6 @@ router.get('/ongs', listONGs);
 router.get('/denuncias', listDenuncias);
 router.get('/projetos', listProjetos)
 router.put('/ong/:id/approve', approveONG)
-router.put('/ong/:id/reject', rejectONG)
+router.delete('/ong/:id/approve', rejectONG)
 
 module.exports = router;

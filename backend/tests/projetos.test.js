@@ -2,11 +2,12 @@ const { app, request, getToken } = require('./helpers/http');
 const { Projeto } = require('../src/models');
 
 describe('Projetos', () => {
-  const email = `dona-projeto-${Date.now()}@verde.com`;
+  const createdProjectIds = [];
+
   let donoToken;
   let outroToken;
   let projetoId;
-
+  
   beforeAll(async () => {
     donoToken = await getToken('maria@verde.com', '123456');
     outroToken = await getToken('joao@verde.com', '123456');
@@ -15,12 +16,17 @@ describe('Projetos', () => {
       .post('/api/projetos')
       .set('Authorization', `Bearer ${donoToken}`)
       .send({ objetivo: 'Projeto de teste', descricao: 'Descrição do projeto de teste' });
-    projetoId = criado.body.projeto.id_Projeto;
+
+    expect(criado.status).toBe(201);
+    expect(criado.body.projeto.idProjeto).toBeDefined();
+    projetoId = criado.body.projeto.idProjeto;
+    createdProjectIds.push(projetoId);
   });
 
+
   afterAll(async () => {
-    if (projetoId) {
-      await Projeto.destroy({ where: { id_Projeto: projetoId } });
+    if (createdProjectIds.length > 0) {
+      await Projeto.destroy({ where: { idProjeto: createdProjectIds } });
     }
   });
 
@@ -30,14 +36,19 @@ describe('Projetos', () => {
       expect(res.status).toBe(401);
     });
 
-    it('lista apenas os projetos do usuário logado', async () => {
+    it('lista projetos com os dados da ONG', async () => {
       const res = await request(app)
         .get('/api/projetos')
         .set('Authorization', `Bearer ${donoToken}`);
 
       expect(res.status).toBe(200);
       expect(Array.isArray(res.body.projetos)).toBe(true);
-      res.body.projetos.forEach((p) => expect(p.idUsuario).toBe(2));
+      expect(res.body.projetos.length).toBeGreaterThan(0);
+      res.body.projetos.forEach((p) => {
+        expect(p).toHaveProperty('idProjeto');
+        expect(p).toHaveProperty('idOng');
+        expect(p.ong).toHaveProperty('nome');
+      });
     });
   });
 
@@ -48,7 +59,7 @@ describe('Projetos', () => {
         .set('Authorization', `Bearer ${donoToken}`);
 
       expect(res.status).toBe(200);
-      expect(res.body.projeto.id_Projeto).toBe(projetoId);
+      expect(res.body.projeto.idProjeto).toBe(projetoId);
     });
 
     it('retorna 404 para projeto inexistente', async () => {
@@ -66,11 +77,13 @@ describe('Projetos', () => {
         .post('/api/projetos')
         .set('Authorization', `Bearer ${donoToken}`)
         .send({ objetivo: 'Plantio em área da Cidade Tiradentes', descricao: 'Novo mutirão' });
-
+      
       expect(res.status).toBe(201);
-      expect(res.body.projeto.percentualConclusao).toBe(0);
+      const createdId = res.body.projeto.idProjeto;
+      expect(createdId).toBeDefined();
+      createdProjectIds.push(createdId);
 
-      await Projeto.destroy({ where: { id_Projeto: res.body.projeto.id_Projeto } });
+      expect(res.body.projeto.percentualConclusao).toBe(0);
     });
   });
 

@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { Usuario } = require('../models');
+const { Usuario, Nivel_Usuario } = require('../models');
 
 const authMiddleware = async (req, res, next) => {
   const header = req.headers.authorization;
@@ -18,7 +18,14 @@ const authMiddleware = async (req, res, next) => {
       return res.status(401).json({ error: 'Usuário não encontrado' });
     }
 
-    req.user = usuario;
+    const nivel = await Nivel_Usuario.findByPk(usuario.idNivel_Usuario);
+    if (!nivel) {
+      return res.status(403).json({ error: 'Nível de usuário não encontrado' });
+    }
+
+    req.user = usuario
+    req.user.tipo = nivel.descricao 
+
     next();
   } catch (err) {
     return res.status(401).json({ error: 'Token inválido' });

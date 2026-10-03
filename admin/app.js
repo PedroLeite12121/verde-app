@@ -172,7 +172,7 @@ async function loadUsuarios() {
       tbody.innerHTML = '<tr class="empty-row"><td colspan="4">Nenhum usuário encontrado.</td></tr>';
       return;
     }
-    console.log(usuarios)
+
     tbody.innerHTML = usuarios
       .map((u) => `
         <tr>
@@ -269,6 +269,7 @@ async function loadDenuncias() {
       tbody.innerHTML = '<tr class="empty-row"><td colspan="7">Nenhuma denúncia encontrada.</td></tr>';
       return;
     }
+
     const areaLabel = (a) =>
       a ? `${escapeHtml(a.cidade)}, ${escapeHtml(a.bairro)}` : '-';
     tbody.innerHTML = denuncias

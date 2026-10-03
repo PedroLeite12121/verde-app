@@ -1,4 +1,5 @@
 const { app, request } = require('./helpers/http');
+const { Usuario } = require('../src/models')
 
 describe('Auth', () => {
   describe('POST /api/auth/login', () => {
@@ -13,15 +14,24 @@ describe('Auth', () => {
       expect(res.body.usuario.email).toBe('admin@verde.com');
       expect(res.body.usuario.senha).toBeUndefined();
     });
-
-    it('loga com usuário comum e retorna tipo comum', async () => {
+    it('loga com usuário de ONG e retorna tipo ong', async () => {
       const res = await request(app)
         .post('/api/auth/login')
         .send({ email: 'maria@verde.com', senha: '123456' });
 
       expect(res.status).toBe(200);
-      expect(res.body.tipo).toBe('comum');
+      expect(res.body.tipo).toBe('ong');
       expect(res.body.usuario.email).toBe('maria@verde.com');
+    });
+
+    it('loga com usuário comum e retorna tipo comum', async () => {
+      const res = await request(app)
+        .post('/api/auth/login')
+        .send({ email: 'joao@verde.com', senha: '123456' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.tipo).toBe('comum');
+      expect(res.body.usuario.email).toBe('joao@verde.com');
     });
 
     it('rejeita senha incorreta', async () => {
@@ -54,13 +64,17 @@ describe('Auth', () => {
   describe('POST /api/auth/register', () => {
     const email = `teste-${Date.now()}@verde.com`;
 
+    afterAll(async () => {
+      await Usuario.destroy({ where: { email } });
+    });
+
     it('cria um usuário comum', async () => {
       const res = await request(app).post('/api/auth/register').send({
         nome: 'Usuário Teste',
         email,
         senha: '123456',
-        cpf: '11122233344',
-        dataNasc: '1998-01-01',
+        cpf: null,
+        dataNasc: null,
       });
 
       expect(res.status).toBe(201);

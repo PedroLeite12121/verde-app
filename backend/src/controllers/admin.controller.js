@@ -32,7 +32,8 @@ const dashboardStats = async (req, res) => {
 const listUsuarios = async (req, res) => {
   try {
     const usuarios = await Usuario.findAll({
-      include: [{ model: Nivel_Usuario, as: 'nivel', attributes: ['idNivel_Usuario', 'descricao'] }]
+      attributes: { exclude: ['senha'] },
+      include: [{ model: Nivel_Usuario, as: 'nivel', attributes: ['descricao'] }]
     });
     return res.json({ usuarios });
   } catch (err) {
@@ -94,7 +95,6 @@ const approveONG = async (req, res) => {
     const ong = await Ong.findByPk(req.params.id, { transaction: t });
     if (!ong) {
       await t.rollback();
-
       return res.status(404).json({ error: 'ONG não encontrada' });
     }
 
@@ -109,8 +109,7 @@ const approveONG = async (req, res) => {
     return res.json({ ong });
   } catch (err) {
     await t.rollback();
-
-    console.error(err);
+    
     return res.status(500).json({ error: 'Erro ao aprovar ONG' });
   }
 };
@@ -128,7 +127,7 @@ const rejectONG = async (req, res) => {
 
     await Ong.destroy({where: {idOng: req.params.id}})
 
-    return res.json({ ong });
+    return res.json({ message: "ONG rejeitada e deletada com sucesso" });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: 'Erro ao reprovar ONG' });
