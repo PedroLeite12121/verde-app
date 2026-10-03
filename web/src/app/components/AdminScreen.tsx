@@ -35,7 +35,7 @@ type Stats = {
 const DEN_STATUS = {
   aberta: { label: "Aberta", join: "badge-error px-2 py-1" },
   "em tratamento": { label: "Em tratamento", join: "badge-warning px-2 py-1" },
-  resolvido: { label: "Resolvida", join: "badge-success px-2 py-1" },
+  resolvida: { label: "Resolvida", join: "badge-success px-2 py-1" },
 };
 
 const AREA_STATUS = {
@@ -126,14 +126,16 @@ export function AdminScreen() {
     }
   }
 
-  async function updateOngStatus(
-    id: number,
-    action: "approve" | "reject",
-  ) {
+  async function updateOngStatus(id: number, action: "approve" | "reject" ) {
     setUpdating(true);
 
     try {
-      await api.put(`/admin/ong/${id}/${action}`);
+      if (action == "approve") {
+        await api.put(`/admin/ong/${id}/approve`);
+      }
+      else {
+        await api.del(`/admin/ong/${id}/approve`);
+      }
 
       setSelectedOngId(null);
       ongs.reload();
@@ -285,12 +287,7 @@ export function AdminScreen() {
                         updating ||
                         selected.statusDenuncia === "em tratamento"
                       }
-                      onClick={() =>
-                        updateStatus(
-                          selected.idDenuncia,
-                          "em tratamento",
-                        )
-                      }
+                      onClick={() => updateStatus(selected.idDenuncia, "em tratamento")}
                       className="btn btn-warning w-full text-sm font-semibold disabled:opacity-50"
                     >
                       <Clock3 size={15} /> Marcar em tratamento
@@ -299,11 +296,9 @@ export function AdminScreen() {
                     <button
                       disabled={
                         updating ||
-                        selected.statusDenuncia === "resolvido"
+                        selected.statusDenuncia === "resolvida"
                       }
-                      onClick={() =>
-                        updateStatus(selected.idDenuncia, "resolvido")
-                      }
+                      onClick={() => updateStatus(selected.idDenuncia, "resolvida")}
                       className="btn btn-success w-full text-sm font-semibold disabled:opacity-50"
                     >
                       <CheckCircle2 size={15} /> Marcar resolvida

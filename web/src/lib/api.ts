@@ -53,6 +53,7 @@ export type Projeto = {
   ong?: Pick<Ong, "idOng" | "nome" | "regiao">
 };
 
+const API_BASE_TEST = "http://localhost:3333/api"
 const API_BASE = "https://verde-app-backend.onrender.com/api"
 
 const TOKEN_KEY = "@verde:token";
@@ -100,7 +101,7 @@ async function request<T>(
   body?: unknown,
   params?: Record<string, string>,
 ): Promise<T> {
-  const url = new URL(`${API_BASE}${path}`);
+  const url = new URL(`${API_BASE_TEST}${path}`);
   if (params) {
     for (const [k, v] of Object.entries(params)) {
       if (v !== undefined && v !== "") url.searchParams.set(k, v);

@@ -48,7 +48,7 @@ module.exports = {
     await queryInterface.sequelize.query(`
       ALTER TABLE tbl_Denuncia
       ADD CONSTRAINT chk_status_denuncia
-      CHECK (statusDenuncia IN ('aberta', 'em tratamento', 'resolvido'))
+      CHECK (statusDenuncia IN ('aberta', 'em tratamento', 'resolvida'))
     `);
   },
 

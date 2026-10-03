@@ -1,11 +1,19 @@
 const { app, request, getToken } = require('./helpers/http');
+const { Area } = require('../src/models')
 
 describe('Áreas', () => {
   let token;
+  const createdAreaIds = []
 
   beforeAll(async () => {
     token = await getToken('maria@verde.com', '123456');
   });
+
+  afterAll(async () => {
+    if (createdAreaIds.length > 0) {
+      await Area.destroy({ where: { idArea: createdAreaIds } });
+    }
+  })
 
   describe('Acesso', () => {
     it('rejeita sem token (401)', async () => {
@@ -41,6 +49,7 @@ describe('Áreas', () => {
         .set('Authorization', `Bearer ${token}`);
 
       expect(res.status).toBe(200);
+      expect(res.body.areas.length).toBeGreaterThan(0);
       res.body.areas.forEach((a) => expect(a.statusArea).toBe('em tratamento'));
     });
   });
@@ -77,12 +86,11 @@ describe('Áreas', () => {
         });
 
       expect(res.status).toBe(201);
-      expect(res.body.area.bairro).toBe('Cidade Tiradentes');
-      expect(res.body.area.idArea).toBeDefined();
+      const id = res.body.area.idArea;
+      expect(id).toBeDefined();
+      createdAreaIds.push(id);
 
-      await request(app)
-        .delete(`/api/areas/${res.body.area.idArea}`)
-        .set('Authorization', `Bearer ${token}`);
+      expect(res.body.area.bairro).toBe('Cidade Tiradentes');
     });
   });
 
@@ -97,7 +105,11 @@ describe('Áreas', () => {
           rua: 'Rua para Atualizar',
           statusArea: 'identificada',
         });
+      
+      expect(criada.status).toBe(201)
       const id = criada.body.area.idArea;
+      expect(id).toBeDefined();
+      createdAreaIds.push(id);
 
       const res = await request(app)
         .put(`/api/areas/${id}`)
@@ -106,8 +118,6 @@ describe('Áreas', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.area.statusArea).toBe('em tratamento');
-
-      await request(app).delete(`/api/areas/${id}`).set('Authorization', `Bearer ${token}`);
     });
 
     it('retorna 404 ao atualizar área inexistente', async () => {
@@ -131,8 +141,12 @@ describe('Áreas', () => {
           rua: 'Rua para Deletar',
           statusArea: 'identificada',
         });
-      const id = criada.body.area.idArea;
 
+      expect(criada.status).toBe(201)
+      const id = criada.body.area.idArea;
+      expect(id).toBeDefined();
+      createdAreaIds.push(id);
+      
       const res = await request(app)
         .delete(`/api/areas/${id}`)
         .set('Authorization', `Bearer ${token}`);

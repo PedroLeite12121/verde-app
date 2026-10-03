@@ -31,10 +31,7 @@ const getProjeto = async (req, res) => {
 
 const createProjeto = async (req, res) => {
   try {
-    
-
     const { objetivo, descricao } = req.body;
-    const percentualConclusao = 0
 
     const ong = await Ong.findOne({
       where: {
@@ -44,15 +41,10 @@ const createProjeto = async (req, res) => {
     });
 
     if (!ong) {
-      return res.status(403).json({
-        error: 'É necessário ter uma ONG aprovada para criar um projeto.',
-      });
+      return res.status(403).json({ error: 'É necessário ter uma ONG aprovada para criar um projeto.' });
     }
 
-    const idOng = ong.idOng
-
-    const projeto = await Projeto.create({ idOng, objetivo, descricao, percentualConclusao });
-
+    const projeto = await Projeto.create({ idOng: ong.idOng, objetivo, descricao, percentualConclusao: 0 });
     return res.status(201).json({ projeto });
   } catch (err) {
     return res.status(500).json({ error: 'Erro ao criar projeto' });

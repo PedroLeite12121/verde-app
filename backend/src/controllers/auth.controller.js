@@ -7,10 +7,7 @@ const generateToken = (id) => {
 
 const isValidCPF = (value) => {
   const cpf = String(value ?? '').replace(/\D/g, '');
-
-  if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) {
-    return false;
-  }
+  if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) { return false }
 
   const calculateDigit = (digits, weight) => {
     const sum = digits
@@ -28,14 +25,10 @@ const isValidCPF = (value) => {
 };
 
 const isValidBirthDate = (value) => {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    return false;
-  }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) { return false }
 
   const [year, month, day] = value.split('-').map(Number);
-  if (year < 1900) {
-    return false
-  }
+  if (year < 1900) { return false }
 
   const date = new Date(Date.UTC(year, month - 1, day));
 
@@ -52,18 +45,15 @@ const isValidBirthDate = (value) => {
 const register = async (req, res) => {
   try {
     const { nome, email, senha, cpf, dataNasc } = req.body;
-    const idNivel_Usuario = 1
+
     const cpfDigits = cpf ? String(cpf).replace(/\D/g, '') : null;
     const birthDate = dataNasc ? String(dataNasc).trim() : null;
 
     if (cpfDigits && !isValidCPF(cpfDigits)) {
       return res.status(400).json({ error: 'CPF inválido.' });
     }
-
     if (birthDate && !isValidBirthDate(birthDate)) {
-      return res.status(400).json({
-        error: 'Data de nascimento inválida. Use o formato AAAA-MM-DD e informe uma data real.',
-      });
+      return res.status(400).json({ error: 'Data de nascimento inválida. Use o formato AAAA-MM-DD e informe uma data real.' });
     }
 
     const existing = await Usuario.findOne({ where: { email } });
@@ -71,13 +61,16 @@ const register = async (req, res) => {
       return res.status(409).json({ error: 'Email já cadastrado' });
     }
 
-    const usuario = await Usuario.create({ idNivel_Usuario, nome, email, senha, cpf: cpfDigits, dataNasc: birthDate });
+    const usuario = await Usuario.create({ idNivel_Usuario: 1, nome, email, senha, cpf: cpfDigits, dataNasc: birthDate });
+
+    const usuarioSeguro = usuario.toJSON();
+    delete usuarioSeguro.senha;
 
     const token = generateToken(usuario.idUsuario);
 
-    return res.status(201).json({ usuario, token, tipo: 'comum' });
+    return res.status(201).json({ usuario: usuarioSeguro, token, tipo: 'comum' });
+
   } catch (err) {
-    console.error(err);
     return res.status(500).json({ error: 'Erro ao criar usuário' });
   }
 };
@@ -102,11 +95,13 @@ const login = async (req, res) => {
 
     const tipo = usuario.nivel.descricao
 
+    const usuarioSeguro = usuario.toJSON();
+    delete usuarioSeguro.senha;
+
     const token = generateToken(usuario.idUsuario);
 
-    return res.json({ usuario, tipo, token });
+    return res.json({ usuario: usuarioSeguro, tipo, token });
   } catch (err) {
-    console.error(err);
     return res.status(500).json({ error: 'Erro ao fazer login' });
   }
 };

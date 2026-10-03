@@ -21,8 +21,8 @@ module.exports = {
     await queryInterface.bulkInsert('tbl_Usuario', usuarios);
 
     const ongs = [ 
-      { idOng: 1, idUsuario: 2, nome: 'ONG da Cidade Tiradentes', regiao: 'Cidade Tiradentes', cnpj: '12345678000190', telefone: '(11) 99999-0001', descricao: 'ONG de reflorestamento urbano na Cidade Tiradentes', statusOng: 'aprovada' },
-      { idOng: 2, idUsuario: 4, nome: 'ONG de Itaquera', regiao: 'Itaquera', cnpj: '12345678000191', telefone: '(11) 99999-0001', descricao: 'ONG de reflorestamento urbano na Itaquera', statusOng: 'aprovada' },
+      { idOng: 1, idUsuario: 2, nome: 'ONG da Cidade Tiradentes', regiao: 'Cidade Tiradentes', cnpj: '02172695000114', telefone: '(11) 99999-0001', descricao: 'ONG de reflorestamento urbano na Cidade Tiradentes', statusOng: 'aprovada' },
+      { idOng: 2, idUsuario: 4, nome: 'ONG de Itaquera', regiao: 'Itaquera', cnpj: '08293704000101', telefone: '(11) 99999-0001', descricao: 'ONG de reflorestamento urbano na Itaquera', statusOng: 'aprovada' },
     ]
     await queryInterface.bulkInsert('tbl_Ong', ongs);
 

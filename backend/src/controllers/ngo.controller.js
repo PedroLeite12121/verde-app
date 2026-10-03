@@ -93,14 +93,12 @@ const getONG = async (req, res) => {
 
 const createONG = async (req, res) => {
   try {
-    const { nome,regiao, cnpj, telefone, descricao } = req.body;
+    const { nome, regiao, cnpj, telefone, descricao } = req.body;
     const idUsuario = req.user.idUsuario
     const statusOng = 'pendente'
 
-    if (req.user.tipo === 'admin') {
-      return res.status(403).json({
-        error: 'Administradores não podem cadastrar ONGs.',
-      });
+    if (req.user.tipo != 'comum') {
+      return res.status(403).json({ error: 'Somente usuários comuns podem cadastrar ONGs.' });
     }
 
     const existing = await Ong.findOne({
@@ -117,9 +115,13 @@ const createONG = async (req, res) => {
     const cnpjDigits = cnpj.replace(/\D/g, '');
     const telefoneDigits = telefone.replace(/\D/g, '');
 
-    if (!isValidCNPJ(cnpjDigits)) { return res.status(400).json({ error: 'CNPJ inválido.' }) }
+    if (!isValidCNPJ(cnpjDigits)) { 
+      return res.status(400).json({ error: 'CNPJ inválido.' }) 
+    }
 
-    if (!isValidPhone(telefoneDigits)) { return res.status(400).json({ error: 'Telefone inválido.' }) }
+    if (!isValidPhone(telefoneDigits)) { 
+      return res.status(400).json({ error: 'Telefone inválido.' }) 
+    }
 
     const ong = await Ong.create({ idUsuario, nome, regiao, cnpj, telefone, descricao, statusOng });
 
@@ -129,14 +131,61 @@ const createONG = async (req, res) => {
   }
 };
 
+const updateOng = async (req, res) => {
+  try {
+    
+    const ong = await Ong.findByPk(req.params.id);
+
+    if (!ong) {
+      return res.status(404).json({ error: 'ONG não encontrada' });
+    }
+
+    const isAdmin = req.user.tipo === 'admin';
+    const isOwner = String(ong.idUsuario) === String(req.user.idUsuario);
+
+    if (!isAdmin && !isOwner) {
+      return res.status(403).json({ error: 'Sem permissão para atualizar esta ONG' });
+    }
+    
+    await ong.update(req.body);
+
+    return res.json({ ong });
+  } catch (err) {
+
+    return res.status(500).json({ error: 'Erro ao atualizar ONG' });
+  }
+}
+
+const deleteOng = async (req, res) => {
+  try {
+    const ong = await Ong.findByPk(req.params.id);
+
+    if (!ong) {
+      return res.status(404).json({ error: 'ONG não encontrada' });
+    }
+
+    const isAdmin = req.user.tipo === 'admin';
+    const isOwner = String(ong.idUsuario) === String(req.user.idUsuario);
+
+    if (!isAdmin && !isOwner) {
+      return res.status(403).json({ error: 'Sem permissão para deletar esta ONG' });
+    }
+
+    await ong.destroy();
+
+    return res.json({ message: 'ONG removida com sucesso' });
+  } catch (err) {
+    return res.status(500).json({ error: 'Erro ao remover ONG' });
+  }
+}
+
 const followONG = async (req, res) => {
   try {
     const { id } = req.params;
 
     const ong = await Ong.findByPk(id);
-
     if (!ong) {
-      return res.status(404).json({ error: 'ONG não encontrada' });
+      return res.status(404).json({ error: 'ONG não encontrada' }) 
     }
 
     if (ong.statusOng !== 'aprovada') {
@@ -146,26 +195,17 @@ const followONG = async (req, res) => {
     }
 
     const existing = await Ong_Usuario.findOne({
-      where: {
-        idOng: id,
-        idUsuario: req.user.idUsuario,
-      },
+      where: { idOng: id, idUsuario: req.user.idUsuario },
     });
 
     if (existing) {
-      return res.status(409).json({
-        error: 'Você já segue esta ONG',
-      });
+      return res.status(409).json({ error: 'Você já segue esta ONG' });
     }
 
-    const following = await Ong_Usuario.create({
-      idOng: id,
-      idUsuario: req.user.idUsuario,
-    });
+    const following = await Ong_Usuario.create({ idOng: id, idUsuario: req.user.idUsuario });
 
     return res.status(201).json({ following });
   } catch (err) {
-    console.log(err);
     return res.status(500).json({ error: 'Erro ao seguir ONG' });
   }
 };
@@ -174,22 +214,29 @@ const unfollowONG = async (req, res) => {
   try {
     const { id } = req.params;
 
+    const ong = await Ong.findByPk(id);
+    if (!ong) { 
+      return res.status(404).json({ error: 'ONG não encontrada' }) 
+    }
+
+    const existing = await Ong_Usuario.findOne({
+      where: { idOng: id, idUsuario: req.user.idUsuario }
+    });
+
+    if (!existing) {
+      return res.status(409).json({ error: 'Você não segue esta ONG' });
+    }
+
     const deleted = await Ong_Usuario.destroy({
-      where: {
-        idOng: id,
-        idUsuario: req.user.idUsuario,
-      },
+      where: { idOng: id, idUsuario: req.user.idUsuario },
     });
 
     if (!deleted) {
-      return res.status(404).json({
-        error: 'Você não segue esta ONG',
-      });
+      return res.status(404).json({ error: 'Você não segue esta ONG' });
     }
 
     return res.json({ message: 'Você deixou de seguir a ONG' });
   } catch (err) {
-    console.log(err);
     return res.status(500).json({ error: 'Erro ao deixar de seguir ONG' });
   }
 };
@@ -197,24 +244,18 @@ const unfollowONG = async (req, res) => {
 const listFollowingONGs = async (req, res) => {
   try {
     const following = await Ong_Usuario.findAll({
-      where: {
-        idUsuario: req.user.idUsuario,
-      },
-      include: [{model: Ong, as: 'ong', where: { statusOng: 'aprovada',},
-          include: [
-            {model: Usuario, as: 'usuario', attributes: ['idUsuario', 'nome', 'email']},
-          ],
+      where: { idUsuario: req.user.idUsuario, },
+      include: [{
+          model: Ong, as: 'ong', where: { statusOng: 'aprovada',},
+          include: [ {model: Usuario, as: 'usuario', attributes: ['idUsuario', 'nome', 'email']} ],
         }],
       order: [['idOng_Usuario', 'DESC']],
     });
 
-    return res.json({
-      ongs: following.map((item) => item.ong),
-    });
+    return res.json({ ongs: following.map((item) => item.ong) });
   } catch (err) {
-    console.log(err);
     return res.status(500).json({error: 'Erro ao listar ONGs seguidas'});
   }
 };
 
-module.exports = { listONGs, getONG, createONG, followONG, unfollowONG, listFollowingONGs };
+module.exports = { listONGs, getONG, createONG, updateOng, deleteOng, followONG, unfollowONG, listFollowingONGs };

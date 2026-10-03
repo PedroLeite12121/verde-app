@@ -15,7 +15,7 @@ module.exports = {
       },
       bairro: {
         type: Sequelize.STRING(30),
-        allowNull: false,
+        allowNull: true,
       },
       rua: {
         type: Sequelize.STRING(35),
