@@ -101,7 +101,7 @@ async function request<T>(
   body?: unknown,
   params?: Record<string, string>,
 ): Promise<T> {
-  const url = new URL(`${API_BASE_TEST}${path}`);
+  const url = new URL(`${API_BASE}${path}`);
   if (params) {
     for (const [k, v] of Object.entries(params)) {
       if (v !== undefined && v !== "") url.searchParams.set(k, v);
